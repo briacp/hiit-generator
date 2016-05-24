@@ -3,7 +3,7 @@
 var express = require('express');
 var router = express.Router();
 var tmp = require('tmp');
-var sqlite3 = require('sqlite3');
+var sqlite3 = require('sqlite3'); //.verbose();
 
 router.post('/', function (req, res, next) {
     // Use something more sensible.
@@ -15,7 +15,7 @@ router.post('/', function (req, res, next) {
 function exportToDB(hiit, locale, res) {
     console.log('Post Export DB');
 
-    var tmpFile = tmp.tmpNameSync({ template: 'export-XXXXXX.hiit' });
+    var tmpFile = tmp.tmpNameSync({ template: 'export-XXXXXX.ahiit' });
     var dbFile  = __dirname + '/../hiit-exports/' + tmpFile;
 
     var db = new sqlite3.Database(dbFile, function (error) {
@@ -46,25 +46,31 @@ function exportToDB(hiit, locale, res) {
         var setId = 1;
         var actionId = 1;
 
+        var stmtSet = db.prepare('INSERT INTO "table_set" VALUES(?,?,?)');
+        var stmtSetMain = db.prepare('INSERT INTO "table_set_main" VALUES(?,?,?,?,?)');
+
         for (var i = 0; i < hiit.sets.length; i++) {
             var set = hiit.sets[i];
             set.id = setId;
 
             console.log(set.id + '\t' + set.name);
 
-            db.run('INSERT INTO "table_set" VALUES(?,?,?)', [set.id, set.name, set.repetitions]);
+            stmtSet.run([set.id, set.name, set.repetitions]);
 
             for (var j = 0; j < set.actions.length; j++) {
                 var action = set.actions[j];
                 console.log('\t' + actionId + '\t' + action.name);
 
                 action.id = actionId;
-                db.run('INSERT INTO "table_set_main" VALUES(?,?,?,?,?)', [action.id, set.id, action.name, action.time, _intFromColor(action.color)]);
+                //console.log([action.id, set.id, action.name, action.time, _intFromColor(action.color)])
+                stmtSetMain.run([action.id, set.id, action.name, action.time, _intFromColor(action.color)]);
 
                 actionId++;
             }
             setId++;
         }
+        stmtSet.finalize();
+        stmtSetMain.finalize();
 
         db.run('COMMIT; VACUUM');
 
