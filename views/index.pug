@@ -32,7 +32,7 @@ block content
            span.set-duration {{setDuration(set)}}
 
          span.pull-right
-           button.set-delete.btn.btn-default(type='button', aria-label='Delete Set', ng-click="deleteSet(set); $event.stopPropagation()")
+           button.set-delete.btn.btn-default(type='button', aria-label='Delete Set', ng-click="deleteSet($index); $event.stopPropagation()")
              span.glyphicon.glyphicon-remove(aria-hidden="true")
 
     form#set-editor
