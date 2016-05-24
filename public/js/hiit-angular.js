@@ -33,7 +33,7 @@
             var reps = set.repetitions;
             var roundDuration = 0;
             for (var i = 0; i < set.actions.length; i++) {
-                roundDuration += set.actions[i].time;
+                roundDuration += parseInt(set.actions[i].time, 10);
             }
 
             //console.log('Duration "' + set.name + '":' + roundDuration + '*' + reps + '=' + (roundDuration * reps) + 'sec.');
@@ -74,8 +74,9 @@
             //Sets.save($scope.hiit);
         };
 
-        $scope.deleteSet = function (set) {
-            console.log('Delete set "' + set.name + '"');
+        $scope.deleteSet = function (index) {
+            console.log('Delete set "' + $scope.hiit.sets[index] + '"');
+            $scope.hiit.sets.splice(index, 1);
         };
 
 
