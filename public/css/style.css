@@ -1,0 +1,8 @@
+body { padding: 50px; font: 14px "Lucida Grande", Helvetica, Arial, sans-serif; }
+a { color: #00B7FF; }
+.action-row { padding: 9px 14px; background-color: #f7f7f9; border-radius: 5px; border: Solid 1px #e1e1e8; margin-bottom: 3px }
+.menu-row { padding: 9px 14px; margin-bottom: 3px }
+.action-row   { cursor: move; }
+.action-delete { cursor: pointer; margin-left: 10px; color: red }
+.set { cursor: pointer; }
+#set-editor { display: none; }

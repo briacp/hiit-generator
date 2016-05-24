@@ -1,0 +1,75 @@
+extends layout
+
+block content
+  div.container(ng-app="hiitTimerApp", ng-controller="hiitEditorCtrl")
+    h1= title
+
+    p Edit and generate sets and workouts for the 
+      a(href="https://play.google.com/store/apps/details?id=com.pimpimmobile.atimer") A HIIT Interval Timer
+      |  Android application.
+
+    div(class="btn-group", role="group")
+      button(type="button" class="btn btn-default" disabled)
+        | Import HIIT Sets
+      button(type="button" class="btn btn-default" ng-click="exportSets()")
+        | Export HIIT Sets
+
+    h2 Sets
+
+       div.row.menu-row
+         button.set-add.btn.btn-default.navbar-right(type='button', aria-label='Add New Set', ng-click="addSet()")
+           span.glyphicon.glyphicon-plus(aria-hidden="true")
+           | Create New Set
+
+    div.list-group.set-list
+      div.set.list-group-item.clearfix(ng-repeat="set in hiit.sets", ng-click="showSet(set)")
+         h4.set-name.list-group-item-heading {{set.name}}
+         p.list-group-item-text
+           span.set-actions {{set.actions.length}}
+           |  actions, 
+           span.set-reps {{set.repetitions}}
+           |  reps - 
+           span.set-duration {{setDuration(set)}}
+
+         span.pull-right
+           button.set-delete.btn.btn-default(type='button', aria-label='Delete Set', ng-click="deleteSet(set); $event.stopPropagation()")
+             span.glyphicon.glyphicon-remove(aria-hidden="true")
+
+    form#set-editor
+       h2 Edit Set
+       div.row
+         div.form-group.col-md-10
+           label(for='setName') Name
+           input.form-control(id="setName", name='setName', ng-model="currentSet.name", type='text', placeholder='Set Name')
+         div.form-group.col-md-2
+           label(for='setRepetitions') Rounds
+           input.form-control(id="setRepetitions", name='setRepetitions', ng-model="currentSet.repetitions", type='text', placeholder='Number of Repetitions')
+
+       //div.row
+       //  div.form-group.col-md-12
+       //    div.btn-group.navbar-right(role='group')
+       //      button.set-save.btn.btn-primary(type='button', aria-label='Save Set', ng-click="saveSet()")
+       //        span.glyphicon.glyphicon-save-file(aria-hidden="true")
+       //        | Save Set
+
+       //h3 Actions
+
+       div.row.menu-row
+         button.action-add.btn.btn-default.navbar-right(type='button', aria-label='Add New Action', ng-click="addAction()")
+           span.glyphicon.glyphicon-plus(aria-hidden="true")
+           | Add New Action
+
+
+       div#actions(html-sortable="", ng-model="currentSet.actions", html-sortable-callback="sortableCallback(sourceModel, destModel, start, end)")
+         div.row.action-row(ng-repeat="action in currentSet.actions")
+           span.action-delete.pull-right.glyphicon.glyphicon-remove(aria-hidden="true", title="Delete Action", ng-click="deleteAction(action, $index); $event.stopPropagation()")
+           div.form-group.col-md-7
+             label.sr-only(for='actionName') Name
+             input.form-control(name='actionName', type='text', ng-model="action.name", placeholder='Action Name')
+           div.form-group.col-md-2
+             label.sr-only(for='actionColors') Color
+             input.form-control.input-group(colorpicker="hex", ng-model="action.color", colorpicker-parent="true", name='actionColor', type='text', placeholder="Color")
+           div.form-group.col-md-2
+             label.sr-only(for='actionTime') Time
+             input.form-control(name='actionTime', type='text', ng-model="action.time", pattern="([0-9]{1,}:)?[0-9]{1,}", title="mm:ss", placeholder='Minutes:Seconds')
+
