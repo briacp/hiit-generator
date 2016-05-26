@@ -3,7 +3,7 @@
 var express = require('express');
 var router = express.Router();
 var tmp = require('tmp');
-var sqlite3 = require('sqlite3'); //.verbose();
+var sqlite3 = require('sqlite3');//.verbose();
 
 router.post('/', function (req, res, next) {
     // Use something more sensible.
@@ -13,10 +13,11 @@ router.post('/', function (req, res, next) {
 });
 
 function exportToDB(hiit, locale, res) {
-    console.log('Post Export DB');
 
     var tmpFile = tmp.tmpNameSync({ template: 'export-XXXXXX.ahiit' });
     var dbFile  = __dirname + '/../hiit-exports/' + tmpFile;
+
+    console.log('Post Export DB: ' + dbFile);
 
     var db = new sqlite3.Database(dbFile, function (error) {
         if (error) {
@@ -28,17 +29,22 @@ function exportToDB(hiit, locale, res) {
         }
     });
 
-    db.serialize(function () {
-        db.exec([
-            'BEGIN TRANSACTION',
-            'PRAGMA foreign_keys=OFF',
-            'CREATE TABLE android_metadata (locale TEXT)',
-            'CREATE TABLE table_set (_id INTEGER PRIMARY KEY, set_name TEXT, rounds integer)',
-            'CREATE TABLE table_set_main (_id INTEGER PRIMARY KEY, set_id integer, action integer, time integer, color)',
-            'CREATE TABLE table_workout (_id INTEGER PRIMARY KEY, workout TEXT)',
-            'CREATE TABLE table_workout_main (_id INTEGER PRIMARY KEY, workout_id integer, set_id integer, action integer, time integer, color)',
-            'CREATE TABLE table_workout_set (_id INTEGER PRIMARY KEY, workout_id integer, set_name text, rounds integer)'].join(';'));
+    //db.on('profile', function(sql, ms) {
+    //    console.log('db-profile: [' + sql + '](' + ms + 'ms)');
+    //});
+    //db.on('trace', function(sql) {
+    //    console.log('db-trace  : [' + sql + ']');
+    //});
 
+    db.serialize(function () {
+        db.run('BEGIN TRANSACTION');
+        db.run('PRAGMA foreign_keys=OFF');
+        db.run('CREATE TABLE android_metadata (locale TEXT)');
+        db.run('CREATE TABLE table_set (_id INTEGER PRIMARY KEY, set_name TEXT, rounds integer)');
+        db.run('CREATE TABLE table_set_main (_id INTEGER PRIMARY KEY, set_id integer, action integer, time integer, color)');
+        db.run('CREATE TABLE table_workout (_id INTEGER PRIMARY KEY, workout TEXT)');
+        db.run('CREATE TABLE table_workout_main (_id INTEGER PRIMARY KEY, workout_id integer, set_id integer, action integer, time integer, color)');
+        db.run('CREATE TABLE table_workout_set (_id INTEGER PRIMARY KEY, workout_id integer, set_name text, rounds integer)');
 
         db.run('INSERT INTO android_metadata VALUES(?)', locale);
 
@@ -72,7 +78,8 @@ function exportToDB(hiit, locale, res) {
         stmtSet.finalize();
         stmtSetMain.finalize();
 
-        db.run('COMMIT; VACUUM');
+        db.run('COMMIT');
+        //db.run('VACUUM');
 
         db.close(function (error) {
             if (error) {
@@ -83,6 +90,7 @@ function exportToDB(hiit, locale, res) {
                 return;
             }
 
+            console.log("export done: /hiit/" + tmpFile);
             res.json({ error: null, location: '/hiit/' + tmpFile });
 
             //res.download(dbFile, function (err) {
