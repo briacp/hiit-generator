@@ -22,11 +22,13 @@ block content
               button.btn.btn-primary(type="button", ng-click=action, data-dismiss="modal")= actionText
 
     +modalDialog("deleteSetModal", "Delete Set", "Are you sure you want to delete the set {{currentSet.name}}?", "deleteSet(currentSet.index);", "Delete Set")
-    +modalDialog("deleteWorkoutModal", "Delete Workout", "Are you sure you want to delete the workout {{currentWorkout.name}}?", "deleteSet(currentWorkout.index);", "Delete Workout")
+    +modalDialog("deleteWorkoutModal", "Delete Workout", "Are you sure you want to delete the workout {{currentWorkout.name}}?", "deleteWorkout(currentWorkout.index);", "Delete Workout")
 
     p Edit and generate sets and workouts for the 
       a(href="https://play.google.com/store/apps/details?id=com.pimpimmobile.atimer", target="_blank") A HIIT Interval Timer
-      |  Android application.
+      |  Android application. Code available on 
+      a(href="https://github.com/briacp/hiit-generator", target="_blank") GitHub
+      | .
 
     div.btn-group.btn-group-lg(role="group")
       button.btn.btn-primary(type="button", ng-click="showSets()")
@@ -46,11 +48,24 @@ block content
         | Import HIIT Sets
       button.btn.btn-default(type="button", ng-click="exportHiit()", target="_blank")
         | Export HIIT Sets
+      //button.btn.btn-default(type="button", ng-click="toggleDebug()")
+      //  | Debug
+
+    div(ng-show="debug")
+      dl
+        dt hiit
+        dd {{hiit}}
+        dt modeWorkout
+        dd {{modeWorkout}}
+        dt currentWorkout
+        dd {{currentWorkout}}
+        dt currentSet
+        dd {{currentSet}}
 
     div(ng-show="modeWorkout")
       h2 Workouts
       div.row.menu-row
-        button.set-add.btn.btn-default(type='button', aria-label='Create Workout', ng-click="addWorkout()")
+        button.set-add.btn.btn-default(type='button', aria-label='Create Workout', ng-click="createWorkout()")
           span.glyphicon.glyphicon-plus(aria-hidden="true")
           | Create Workout
 
@@ -66,14 +81,21 @@ block content
              button.workout-delete.btn.btn-default(type='button', aria-label='Delete Workout', data-toggle="modal", data-target="#deleteWorkoutModal")
                span.glyphicon.glyphicon-remove(aria-hidden="true")
 
+    div(ng-show="currentWorkout")
+       h2 Edit Workout
+       div.row
+         div.form-group.col-md-12
+           label(for='workoutName') Name
+           input.form-control(id="workoutName", name='workoutName', ng-model="currentWorkout.name", type='text', placeholder='Workout Name')
+
     h2 Sets
 
     div.row.menu-row
-      button.set-add.btn.btn-default(type='button', aria-label='Create Set', ng-click="addSet()")
+      button.set-add.btn.btn-default(type='button', aria-label='Create Set', ng-click="createSet()", ng-show="!modeWorkout || currentWorkout")
         span.glyphicon.glyphicon-plus(aria-hidden="true")
         | Create Set
 
-    div.list-group.set-list
+    div.list-group.set-list(html-sortable, ng-model="displayedSets")
       div.set.list-group-item.clearfix(ng-repeat="set in displayedSets", ng-click="showSet(set, $index)")
          h4.set-name.list-group-item-heading {{set.name}}
          p.list-group-item-text
@@ -87,7 +109,7 @@ block content
            button.set-delete.btn.btn-default(type='button', aria-label='Delete Set', data-toggle="modal", data-target="#deleteSetModal")
              span.glyphicon.glyphicon-remove(aria-hidden="true")
 
-    form#set-editor(ng-show="currentSet")
+    div(ng-show="currentSet")
        h2 Edit Set
        div.row
          div.form-group.col-md-10
@@ -97,7 +119,7 @@ block content
            label(for='setRepetitions') Rounds
            input.form-control(id="setRepetitions", name='setRepetitions', ng-model="currentSet.repetitions", type='text', placeholder='Number of Repetitions')
 
-       div#actions(html-sortable="", ng-model="currentSet.actions", html-sortable-callback="sortableCallback(sourceModel, destModel, start, end)")
+       div#actions(html-sortable, ng-model="currentSet.actions")
          div.row.action-row(ng-repeat="action in currentSet.actions")
            span.action-delete.pull-right.glyphicon.glyphicon-remove(aria-hidden="true", title="Delete Action", ng-click="deleteAction(action, $index); $event.stopPropagation()")
            div.form-group.col-md-7
@@ -108,7 +130,7 @@ block content
              input.form-control.input-group(colorpicker="hex", ng-model="action.color", colorpicker-parent="true", name='actionColor', type='text', placeholder="Color")
            div.form-group.col-md-2
              label.sr-only(for='actionTime') Time
-             input.form-control(name='actionTime', type='text', ng-model="action.time", pattern="([0-9]{1,}:)?[0-9]{1,}", title="mm:ss", placeholder='Minutes:Seconds')
+             input.form-control(name='actionTime', type='text', ng-model="action.time", pattern="[0-9]{1,}", title="ss", placeholder='Seconds')
 
        div.row.menu-row
          button.action-add.btn.btn-default.navbar-right(type='button', aria-label='Add New Action', ng-click="addAction()")

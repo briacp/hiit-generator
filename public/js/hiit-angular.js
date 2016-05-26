@@ -5,30 +5,36 @@
 
     // Controller
     angular.module('hiitController', [])
-        .controller('hiitEditorCtrl', function ($scope, $http, $window, localStorageService) {
+        .controller('hiitEditorCtrl', function ($scope, $http, $window, $log, localStorageService) {
         $scope.modeWorkout = false;
+        $scope.debug = false;
+
+        $scope.toggleDebug = function () {
+            $scope.debug = !$scope.debug;
+        };
 
         $scope.showSets = function () {
-            //console.log('showSets');
+            $log.debug('showSets');
             $scope.modeWorkout = false;
+            $scope.currentWorkout = null;
             if ($scope.hiit) {
-              $scope.displayedSets = $scope.hiit.sets;
+                $scope.displayedSets = $scope.hiit.sets;
             }
             $scope.currentSet = null;
         };
 
         $scope.showWorkouts = function () {
-            //console.log('showWorkouts');
+            $log.debug('showWorkouts');
             $scope.modeWorkout = true;
-            $scope.displayedSets = []
             if ($scope.hiit) {
-              $scope.currentWorkout = $scope.hiit.workouts[0];
+                $scope.currentWorkout = $scope.hiit.workouts[0];
+                $scope.displayedSets = $scope.currentWorkout.sets;
             }
             $scope.currentSet = null;
         };
 
         $scope.exportHiit = function () {
-            //console.log($scope.hiit);
+            $log.debug($scope.hiit);
             $http.post('/export-db', $scope.hiit).success(function (data) {
                 $window.location.href = data.location;
             });
@@ -38,7 +44,7 @@
             var duration = 0;
 
             for (var i = 0; i < workout.sets.length; i++) {
-                  duration += $scope.setDuration(workout.sets[i], true);
+                duration += $scope.setDuration(workout.sets[i], true);
             }
 
             return returnSec ? duration : sec2minsec(duration);
@@ -53,7 +59,7 @@
                 roundDuration += t;
             }
 
-            //console.log('Duration "' + set.name + '":' + roundDuration + '*' + reps + '=' + (roundDuration * reps) + 'sec.');
+            //$log.debug('Duration "' + set.name + '":' + roundDuration + '*' + reps + '=' + (roundDuration * reps) + 'sec.');
 
             return returnSec ? roundDuration * reps : sec2minsec(roundDuration * reps);
         };
@@ -75,8 +81,17 @@
             return minutes + ':' + seconds;
         };
 
-        $scope.addSet = function () {
-            //console.log('Add new set');
+        $scope.createWorkout = function () {
+            $log.debug('Create new workout');
+            var i = $scope.hiit.workouts.push({
+                name: '',
+                sets: []
+            });
+            $scope.showWorkout($scope.hiit.workouts[i - 1], -1);
+        };
+
+        $scope.createSet = function () {
+            $log.debug('Create new set');
             var i = $scope.displayedSets.push({
                 name: '',
                 repetitions: 1,
@@ -86,38 +101,50 @@
         };
 
         $scope.loadHiit = function () {
-            //console.log('Loading data to localStorage...');
+            $log.debug('Loading data to localStorage...');
             if (localStorageService.isSupported) {
                 $scope.hiit = localStorageService.get('hiit');
             }
         };
 
         $scope.saveHiit = function () {
-            //console.log('Saving data to localStorage...');
+            $log.debug('Saving data to localStorage...');
             if (localStorageService.isSupported) {
                 localStorageService.set('hiit', $scope.hiit);
             }
         };
 
         $scope.showWorkout = function (workout, index) {
-            //console.log(workout, index);
+            $log.debug(workout, index);
+            $scope.currentSet = null;
+
+            if (!workout) {
+                return;
+            }
 
             $scope.currentWorkout = workout;
             $scope.currentWorkout.index = index;
-            $scope.displayedSets = workout.sets;
+            $scope.displayedSets = $scope.currentWorkout.sets;
 
             $('#set-editor').slideDown();
         };
 
+
         $scope.deleteSet = function (index) {
-            //console.log('Delete set "' + $scope.displayedSets[index] + '"');
+            $log.debug('Delete set "' + $scope.displayedSets[index] + '"');
             $scope.displayedSets.splice(index, 1);
             $scope.currentSet = $scope.displayedSets[0];
         };
 
+        $scope.deleteWorkout = function (index) {
+            $log.debug('Delete workout "' + $scope.hiit.workouts[index] + '"');
+            $scope.hiit.workouts.splice(index, 1);
+            $scope.showWorkout($scope.hiit.workouts[0], 0);
+        };
+
 
         $scope.showSet = function (set, index) {
-            //console.log(set, index);
+            $log.debug(set, index);
 
             //var currentSet = {};
             //angular.copy(set, currentSet);
@@ -130,12 +157,12 @@
         };
 
         $scope.addAction = function () {
-            //console.log('Add action to set "' + $scope.currentSet.name + '"');
+            $log.debug('Add action to set "' + $scope.currentSet.name + '"');
             $scope.currentSet.actions.push({});
         };
 
         $scope.deleteAction = function (action, index) {
-            //console.log('Delete action "' + action.name + '" (#' + index + ')');
+            $log.debug('Delete action "' + action.name + '" (#' + index + ')');
             $scope.currentSet.actions.splice(index, 1);
         };
 
