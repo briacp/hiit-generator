@@ -41,6 +41,11 @@ app.use('/fonts', express.static(__dirname + '/node_modules/bootstrap/dist/fonts
 
 app.use('/js',    express.static(__dirname + '/node_modules/angular-local-storage/dist'));
 
+// Angular Bootstrap UI
+app.use('/js',    express.static(__dirname + '/node_modules/angular-ui-bootstrap/dist'));
+app.use('/css',   express.static(__dirname + '/node_modules/angular-ui-bootstrap/dist'));
+app.use('/uib/template',   express.static(__dirname + '/node_modules/angular-ui-bootstrap/template'));
+
 // XXX To remove
 app.use('/js',    express.static(__dirname + '/node_modules/angular-bootstrap-colorpicker/js'));
 app.use('/css',   express.static(__dirname + '/node_modules/angular-bootstrap-colorpicker/css'));
