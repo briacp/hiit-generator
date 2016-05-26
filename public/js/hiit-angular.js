@@ -3,9 +3,12 @@
     'use strict';
     // Services
     angular.module('hiitServices', [])
-        .factory('Sets', function ($http) {
+        .factory('HiitData', function ($http) {
         return {
             get: function () {
+                return $http.get('/hiit_data.js');
+            },
+            save: function () {
                 return $http.get('/hiit_data.js');
             }
         };
@@ -14,13 +17,20 @@
 
     // Controller
     angular.module('hiitController', [])
-        .controller('hiitEditorCtrl', function ($scope, $http, $window, Sets) {
+        .controller('hiitEditorCtrl', function ($scope, $http, $window, HiitData) {
         $scope.formData = {};
 
-        Sets.get().success(function (data) {
+        HiitData.get().success(function (data) {
             $scope.hiit = data;
         });
 
+        $scope.showSets = function() {
+              console.log("showSets");
+        };
+
+        $scope.showWorkouts = function() {
+              console.log("showWorkouts");
+        };
 
         $scope.exportSets = function () {
             console.log($scope.hiit);
@@ -33,7 +43,9 @@
             var reps = set.repetitions;
             var roundDuration = 0;
             for (var i = 0; i < set.actions.length; i++) {
-                roundDuration += parseInt(set.actions[i].time, 10);
+                var t = set.actions[i].time;
+                t = t ? parseInt(t, 10) : 0;
+                roundDuration += t;
             }
 
             //console.log('Duration "' + set.name + '":' + roundDuration + '*' + reps + '=' + (roundDuration * reps) + 'sec.');
@@ -65,13 +77,13 @@
                 repetitions: 1,
                 actions: []
             });
-            $scope.showSet($scope.hiit.sets[i - 1]);
+            $scope.showSet($scope.hiit.sets[i - 1], -1);
         };
 
         $scope.saveSet = function () {
             console.log('Save set "' + $scope.currentSet.name + '"');
             console.log($scope.currentSet);
-            //Sets.save($scope.hiit);
+            //HiitData.save($scope.hiit);
         };
 
         $scope.deleteSet = function (index) {
@@ -80,8 +92,8 @@
         };
 
 
-        $scope.showSet = function (set) {
-            //console.log(set);
+        $scope.showSet = function (set, index) {
+            console.log(set, index);
             //$('#set-editor').slideUp();
 
             //var currentSet = {};
@@ -89,9 +101,9 @@
             //$scope.currentSet = currentSet;
 
             $scope.currentSet = set;
+            $scope.currentSet.index = index;
 
             $('#set-editor').slideDown();
-
         };
 
         $scope.addAction = function () {
