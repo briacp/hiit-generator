@@ -11,7 +11,9 @@
         $scope.showSets = function () {
             //console.log('showSets');
             $scope.modeWorkout = false;
-            $scope.displayedSets = $scope.hiit.sets;
+            if ($scope.hiit) {
+              $scope.displayedSets = $scope.hiit.sets;
+            }
             $scope.currentSet = null;
         };
 
@@ -19,7 +21,9 @@
             //console.log('showWorkouts');
             $scope.modeWorkout = true;
             $scope.displayedSets = []
-            $scope.currentWorkout = $scope.hiit.workouts[0];
+            if ($scope.hiit) {
+              $scope.currentWorkout = $scope.hiit.workouts[0];
+            }
             $scope.currentSet = null;
         };
 
