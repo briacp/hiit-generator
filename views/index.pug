@@ -18,7 +18,7 @@ block content
               h4.modal-title= title
             div.modal-body= text
             div.modal-footer
-              button.btn.btn-default(type="button", data-dismiss="modal") Close
+              button.btn.btn-default(type="button", data-dismiss="modal") Cancel
               button.btn.btn-primary(type="button", ng-click=action, data-dismiss="modal")= actionText
 
     +modalDialog("deleteSetModal", "Delete Set", "Are you sure you want to delete the set {{currentSet.name}}?", "deleteSet(currentSet.index);", "Delete Set")
@@ -37,9 +37,14 @@ block content
         span.badge {{hiit.actions.length}}
 
     div.btn-group.pull-right(role="group")
+      button.btn.btn-default(type="button", ng-click="loadHiit()")
+        | Load
+      button.btn.btn-primary(type="button", ng-click="saveHiit()")
+        | Save
+
       button.btn.btn-default(type="button", disabled)
         | Import HIIT Sets
-      button.btn.btn-default(type="button", ng-click="exportSets()")
+      button.btn.btn-default(type="button", ng-click="exportHiit()", target="_blank")
         | Export HIIT Sets
 
     h2 Sets
@@ -56,7 +61,7 @@ block content
            span.set-actions {{set.actions.length}}
            |  actions, 
            span.set-reps {{set.repetitions}}
-           |  reps 
+           |  rounds 
            span.badge.set-duration {{setDuration(set)}}
 
          span.pull-right

@@ -11,35 +11,6 @@
             "color": "#FF0000",
             "time": 10
         }]
-    }, {
-        "name": "Standard Core Routine",
-        "url": "http://strengthrunning.com/2012/01/the-standard-core-routine-video-demonstration/",
-        "repetitions": 5,
-        "actions": [{
-            "name": "Modified Bicycle",
-            "color": "#ff0000",
-            "time": 45
-        }, {
-            "name": "Plank",
-            "color": null,
-            "time": 45
-        }, {
-            "name": "Bridge",
-            "color": null,
-            "time": 45
-        }, {
-            "name": "Side Plank",
-            "color": null,
-            "time": 45
-        }, {
-            "name": "Modified Bird Dog",
-            "color": null,
-            "time": 45
-        }, {
-            "name": "Supine Leg Lift",
-            "color": null,
-            "time": 45
-        }]
     }],
     "workouts": [{
         "name": "Example",

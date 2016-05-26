@@ -38,6 +38,10 @@ app.use('/js',    express.static(__dirname + '/node_modules/angular'));
 app.use('/js',    express.static(__dirname + '/node_modules/angular-file-saver/dist'));
 app.use('/css',   express.static(__dirname + '/node_modules/bootstrap/dist/css'));
 app.use('/fonts', express.static(__dirname + '/node_modules/bootstrap/dist/fonts'));
+
+app.use('/js',    express.static(__dirname + '/node_modules/angular-local-storage/dist'));
+
+// XXX To remove
 app.use('/js',    express.static(__dirname + '/node_modules/angular-bootstrap-colorpicker/js'));
 app.use('/css',   express.static(__dirname + '/node_modules/angular-bootstrap-colorpicker/css'));
 app.use('/img',   express.static(__dirname + '/node_modules/angular-bootstrap-colorpicker/img'));

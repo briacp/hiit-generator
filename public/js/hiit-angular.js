@@ -1,38 +1,22 @@
 /*global angular:true */
-/*jshint bitwise:true, browser:true, camelcase:true, curly:true, devel:false, eqeqeq:false, forin:true, immed:true, indent:4, newcap:true, noarg:true, noempty:true, nonew:true, quotmark:true, regexp:false, strict:true, trailing:true, undef:true, unused:true */ (function () {
+/*jshint bitwise:true, browser:true, camelcase:true, curly:true, devel:false, eqeqeq:false, forin:true, immed:true, indent:4, newcap:true, noarg:true, noempty:true, nonew:true, quotmark:true, regexp:false, strict:true, trailing:true, undef:true, unused:true */
+(function () {
     'use strict';
-    // Services
-    angular.module('hiitServices', [])
-        .factory('HiitData', function ($http) {
-        return {
-            get: function () {
-                return $http.get('/hiit_data.js');
-            },
-            save: function () {
-                return $http.get('/hiit_data.js');
-            }
-        };
-    });
-
 
     // Controller
     angular.module('hiitController', [])
-        .controller('hiitEditorCtrl', function ($scope, $http, $window, HiitData) {
+        .controller('hiitEditorCtrl', function ($scope, $http, $window, localStorageService) {
         $scope.formData = {};
 
-        HiitData.get().success(function (data) {
-            $scope.hiit = data;
-        });
-
-        $scope.showSets = function() {
-              console.log("showSets");
+        $scope.showSets = function () {
+            console.log('showSets');
         };
 
-        $scope.showWorkouts = function() {
-              console.log("showWorkouts");
+        $scope.showWorkouts = function () {
+            console.log('showWorkouts');
         };
 
-        $scope.exportSets = function () {
+        $scope.exportHiit = function () {
             console.log($scope.hiit);
             $http.post('/export-db', $scope.hiit).success(function (data) {
                 $window.location.href = data.location;
@@ -80,15 +64,24 @@
             $scope.showSet($scope.hiit.sets[i - 1], -1);
         };
 
-        $scope.saveSet = function () {
-            console.log('Save set "' + $scope.currentSet.name + '"');
-            console.log($scope.currentSet);
-            //HiitData.save($scope.hiit);
+        $scope.loadHiit = function () {
+            console.log('Loading data to localStorage...');
+            if (localStorageService.isSupported) {
+                $scope.hiit = localStorageService.get('hiit');
+            }
+        };
+
+        $scope.saveHiit = function () {
+            console.log('Saving data to localStorage...');
+            if (localStorageService.isSupported) {
+                localStorageService.set('hiit', $scope.hiit);
+            }
         };
 
         $scope.deleteSet = function (index) {
             console.log('Delete set "' + $scope.hiit.sets[index] + '"');
             $scope.hiit.sets.splice(index, 1);
+            $scope.currentSet = $scope.hiit.sets[0];
         };
 
 
@@ -117,10 +110,22 @@
         };
 
 
+        if (localStorageService.isSupported) {
+            $scope.loadHiit();
+            //$scope.unbindHiit = localStorageService.bind($scope, 'hiit');
+        }
+
+        // If no data, load a default set
+        if (!$scope.hiit) {
+            $http.get('/hiit_data.js').success(function (data) {
+                $scope.hiit = data;
+            });
+        }
+
     });
 
     // App
-    angular.module('hiitTimerApp', ['hiitController', 'hiitServices', 'htmlSortable', 'colorpicker.module']);
+    angular.module('hiitTimerApp', ['hiitController', 'htmlSortable', 'colorpicker.module', 'LocalStorageModule']);
 
     // done!
 })();

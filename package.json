@@ -8,6 +8,7 @@
   "dependencies": {
     "angular": "^1.5.5",
     "angular-bootstrap-colorpicker": "^3.0.25",
+    "angular-local-storage": "^0.2.7",
     "angular-resource": "^1.5.5",
     "angular-route": "^1.5.5",
     "body-parser": "~1.13.2",
