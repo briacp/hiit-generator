@@ -40,7 +40,6 @@ app.use('/css',   express.static(__dirname + '/node_modules/bootstrap/dist/css')
 app.use('/fonts', express.static(__dirname + '/node_modules/bootstrap/dist/fonts'));
 
 app.use('/js',    express.static(__dirname + '/node_modules/angular-local-storage/dist'));
-app.use('/js',    express.static(__dirname + '/node_modules/angular-file-upload/dist'));
 
 // Angular Bootstrap UI
 app.use('/js',    express.static(__dirname + '/node_modules/angular-ui-bootstrap/dist'));
