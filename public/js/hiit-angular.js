@@ -3,9 +3,11 @@
 (function () {
     'use strict';
 
-    // Controller
-    angular.module('hiitController', [])
-        .controller('hiitEditorCtrl', function ($scope, $http, $window, $log, localStorageService) {
+    angular
+      // App
+      .module('hiitTimerApp', ['htmlSortable', 'colorpicker.module', 'ui.bootstrap', 'LocalStorageModule'])
+      // Controller
+      .controller('hiitEditorCtrl', function ($scope, $http, $window, $log, localStorageService) {
         $scope.modeWorkout = false;
         $scope.debug = false;
 
@@ -176,15 +178,14 @@
         if (!$scope.hiit) {
             $http.get('/hiit_data.js').success(function (data) {
                 $scope.hiit = data;
+                $scope.showSets();
             });
         }
+        else {
+          $scope.showSets();
+        }
 
-        $scope.showSets();
 
     });
 
-    // App
-    angular.module('hiitTimerApp', ['hiitController', 'htmlSortable', 'colorpicker.module', 'ui.bootstrap', 'LocalStorageModule']);
-
-    // done!
 })();
