@@ -116,8 +116,12 @@ function exportToDB(hiit, locale, res) {
             }
             setId++;
         }
+
         stmtSet.finalize();
         stmtSetMain.finalize();
+        stmtWorkout.finalize();
+        stmtWorkoutSet.finalize();
+        stmtWorkoutMain.finalize();
     });
 
     db.serialize(function () {
