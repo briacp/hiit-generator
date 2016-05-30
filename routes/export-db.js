@@ -129,10 +129,10 @@ function exportToDB(hiit, locale, res) {
         db.run('COMMIT');
     });
 
-    db.serialize(function () {
-        console.log('DB vacuum');
-        db.run('VACUUM');
-    });
+    //db.serialize(function () {
+    //    console.log('DB vacuum');
+    //    db.run('VACUUM');
+    //});
 
     db.serialize(function () {
         console.log('DB close');
