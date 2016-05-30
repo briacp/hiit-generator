@@ -3,9 +3,9 @@
 var express = require('express');
 var router = express.Router();
 var tmp = require('tmp');
-var sqlite3 = require('sqlite3');//.verbose();
+var sqlite3 = require('sqlite3'); //.verbose();
 
-router.post('/', function (req, res, next) {
+router.post('/', function (req, res) {
     // Use something more sensible.
     var locale = 'fr_FR';
 
@@ -14,8 +14,10 @@ router.post('/', function (req, res, next) {
 
 function exportToDB(hiit, locale, res) {
 
-    var tmpFile = tmp.tmpNameSync({ template: 'export-XXXXXX.ahiit' });
-    var dbFile  = __dirname + '/../hiit-exports/' + tmpFile;
+    var tmpFile = tmp.tmpNameSync({
+        template: 'export-XXXXXX.ahiit'
+    });
+    var dbFile = __dirname + '/../hiit-exports/' + tmpFile;
 
     console.log('Post Export DB: ' + dbFile);
 
@@ -29,14 +31,13 @@ function exportToDB(hiit, locale, res) {
         }
     });
 
-    //db.on('profile', function(sql, ms) {
-    //    console.log('db-profile: [' + sql + '](' + ms + 'ms)');
-    //});
-    //db.on('trace', function(sql) {
-    //    console.log('db-trace  : [' + sql + ']');
-    //});
+    //db.on('profile', function(sql, ms) { console.log('db-profile: [' + sql + '](' + ms + 'ms)'); });
+    db.on('trace', function (sql) {
+        console.log('db-trace  : [' + sql + ']');
+    });
 
     db.serialize(function () {
+        console.log('Tables creation');
         db.run('BEGIN TRANSACTION');
         db.run('PRAGMA foreign_keys=OFF');
         db.run('CREATE TABLE android_metadata (locale TEXT)');
@@ -45,7 +46,10 @@ function exportToDB(hiit, locale, res) {
         db.run('CREATE TABLE table_workout (_id INTEGER PRIMARY KEY, workout TEXT)');
         db.run('CREATE TABLE table_workout_main (_id INTEGER PRIMARY KEY, workout_id integer, set_id integer, action integer, time integer, color)');
         db.run('CREATE TABLE table_workout_set (_id INTEGER PRIMARY KEY, workout_id integer, set_name text, rounds integer)');
+    });
 
+    db.serialize(function () {
+        console.log('Data insertion');
         db.run('INSERT INTO android_metadata VALUES(?)', locale);
 
         // Add Ids to data
@@ -77,10 +81,20 @@ function exportToDB(hiit, locale, res) {
         }
         stmtSet.finalize();
         stmtSetMain.finalize();
+    });
 
+    db.serialize(function () {
+        console.log('DB commit');
         db.run('COMMIT');
-        //db.run('VACUUM');
+    });
 
+    db.serialize(function () {
+        console.log('DB vacuum');
+        db.run('VACUUM');
+    });
+
+    db.serialize(function () {
+        console.log('DB close');
         db.close(function (error) {
             if (error) {
                 console.log('Cannot close database: ' + error);
@@ -90,8 +104,11 @@ function exportToDB(hiit, locale, res) {
                 return;
             }
 
-            console.log("export done: /hiit/" + tmpFile);
-            res.json({ error: null, location: '/hiit/' + tmpFile });
+            console.log('export done: /hiit/' + tmpFile);
+            res.json({
+                error: null,
+                location: '/hiit/' + tmpFile
+            });
 
             //res.download(dbFile, function (err) {
             //    if (error) {
@@ -107,7 +124,6 @@ function exportToDB(hiit, locale, res) {
 /** Convert from a RGB (#FF00FF) color to Android int color code. */
 function _intFromColor(color) {
     var cache, red, green, blue;
-
     cache = /^#([\da-fA-F]{2})([\da-fA-F]{2})([\da-fA-F]{2})/.exec(color);
 
     if (!cache) {

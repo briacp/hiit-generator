@@ -44,12 +44,18 @@ block content
       button.btn.btn-primary(type="button", ng-click="saveHiit()")
         | Save
 
-      button.btn.btn-default(type="button", disabled, uib-tooltip="Not ready yet!")
+      button.btn.btn-default(type="button", ng-click="showUpload()", disabled)
         | Import HIIT Sets
       button.btn.btn-default(type="button", ng-click="exportHiit()", target="_blank")
         | Export HIIT Sets
       //button.btn.btn-default(type="button", ng-click="toggleDebug()")
       //  | Debug
+
+    div.row.menu-row(ng-show="uploading")
+      label(for="ahiitFile") Upload .ahiit file:
+      input#ahiitFile(, type="file", uploader="uploader", nv-file-select)
+
+
 
     div(ng-show="debug")
       dl

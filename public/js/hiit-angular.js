@@ -1,15 +1,26 @@
 /*global angular:true */
-/*jshint bitwise:true, browser:true, camelcase:true, curly:true, devel:false, eqeqeq:false, forin:true, immed:true, indent:4, newcap:true, noarg:true, noempty:true, nonew:true, quotmark:true, regexp:false, strict:true, trailing:true, undef:true, unused:true */
-(function () {
+/*jshint bitwise:true, browser:true, camelcase:true, curly:true, devel:false, eqeqeq:false, forin:true, immed:true, indent:4, newcap:true, noarg:true, noempty:true, nonew:true, quotmark:true, regexp:false, strict:true, trailing:true, undef:true, unused:true */ (function () {
     'use strict';
 
     angular
-      // App
-      .module('hiitTimerApp', ['htmlSortable', 'colorpicker.module', 'ui.bootstrap', 'LocalStorageModule'])
-      // Controller
-      .controller('hiitEditorCtrl', function ($scope, $http, $window, $log, localStorageService) {
+    // App
+    .module('hiitTimerApp', ['htmlSortable', 'colorpicker.module', 'ui.bootstrap', 'LocalStorageModule', 'angularFileUpload'])
+    // Controller
+    .controller('hiitEditorCtrl', function ($scope, $http, $window, $log, localStorageService, FileUploader) {
         $scope.modeWorkout = false;
         $scope.debug = false;
+        $scope.uploading = false;
+
+        $scope.uploader = new FileUploader({
+            url: '/import-db',
+            autoUpload: true,
+            alias: 'ahiitFile',
+            removeAfterUpload: true
+        });
+
+        $scope.uploader.onCompleteAll = function() {
+            console.info('onCompleteAll');
+        };
 
         $scope.toggleDebug = function () {
             $scope.debug = !$scope.debug;
@@ -33,6 +44,16 @@
                 $scope.displayedSets = $scope.currentWorkout.sets;
             }
             $scope.currentSet = null;
+        };
+
+
+        $scope.showUpload = function () {
+            $scope.uploading = !$scope.uploading;
+        };
+
+        $scope.importHiit = function () {
+            $log.debug("import .ahiit");
+            $log.debug($scope.uploader);
         };
 
         $scope.exportHiit = function () {
@@ -180,9 +201,8 @@
                 $scope.hiit = data;
                 $scope.showSets();
             });
-        }
-        else {
-          $scope.showSets();
+        } else {
+            $scope.showSets();
         }
 
 
