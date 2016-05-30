@@ -49,17 +49,54 @@ function exportToDB(hiit, locale, res) {
     });
 
     db.serialize(function () {
+        var i, j, k;
+
         console.log('Data insertion');
         db.run('INSERT INTO android_metadata VALUES(?)', locale);
 
         // Add Ids to data
         var setId = 1;
         var actionId = 1;
+        var workoutId = 1;
+        var workoutSetId = 1;
+        var workoutActionId = 1;
 
         var stmtSet = db.prepare('INSERT INTO "table_set" VALUES(?,?,?)');
         var stmtSetMain = db.prepare('INSERT INTO "table_set_main" VALUES(?,?,?,?,?)');
+        var stmtWorkout = db.prepare('INSERT INTO "table_workout" VALUES(?,?)');
+        var stmtWorkoutSet = db.prepare('INSERT INTO "table_workout_set" VALUES(?,?,?,?)');
+        var stmtWorkoutMain = db.prepare('INSERT INTO "table_workout_main" VALUES(?,?,?,?,?,?)');
 
-        for (var i = 0; i < hiit.sets.length; i++) {
+        for (i = 0; i < hiit.workouts.length; i++) {
+            var workout = hiit.workouts[i];
+            workout.id = workoutId;
+
+            console.log(workout.id + '\t' + workout.name);
+
+            stmtWorkout.run([workout.id, workout.name]);
+
+            for (j = 0; j < workout.sets.length; j++) {
+                var workoutSet = workout.sets[j];
+
+                workoutSet.id = workoutSetId;
+
+                console.log(workoutSet.id + '\t' + workoutSet.name);
+                stmtWorkoutSet.run([workoutSet.id, workout.id, workoutSet.name, workoutSet.repetitions]);
+
+                for (k = 0; k < workoutSet.actions.length; k++) {
+                    var workoutAction = workoutSet.actions[k];
+                    workoutAction.id = workoutActionId;
+                    console.log('\t' + workoutAction.id + '\t' + workoutAction.name);
+                    stmtWorkoutMain.run([workoutAction.id, workout.id, workoutSet.id, workoutAction.name, workoutAction.time, _intFromColor(workoutAction.color)]);
+
+                    workoutActionId++;
+                }
+                workoutSetId++;
+            }
+            workoutId++;
+        }
+
+        for (i = 0; i < hiit.sets.length; i++) {
             var set = hiit.sets[i];
             set.id = setId;
 
@@ -67,7 +104,7 @@ function exportToDB(hiit, locale, res) {
 
             stmtSet.run([set.id, set.name, set.repetitions]);
 
-            for (var j = 0; j < set.actions.length; j++) {
+            for (j = 0; j < set.actions.length; j++) {
                 var action = set.actions[j];
                 console.log('\t' + actionId + '\t' + action.name);
 
