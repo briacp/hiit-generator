@@ -2,110 +2,194 @@
 'use strict';
 var express = require('express');
 var router = express.Router();
-var tmp = require('tmp');
-var util = require('util');
-var sqlite3 = require('sqlite3').verbose();
+var sqlite3 = require('sqlite3'); //.verbose();
 var multer = require('multer');
+var fs = require('fs');
 
 // File upload
-var storage = multer.diskStorage({
-    destination: 'tmp-import',
-    filename: function (req, file, cb) {
-        var tmpFile = tmp.tmpNameSync({
-            template: 'import-XXXXXXX.db'
-        });
-        console.log("tmp upload:" + tmpFile);
-        cb(null, tmpFile)
-    }
-})
-
-
 var upload = multer({
-    storage: storage
+    dest: 'tmp-import'
 }).single('ahiitFile');
 
+//router.get('/', upload, function (req, res, next) {
+//    _importDb(req, res, next, 'misc/db/Sets.ahiit');
+//});
+
+
 router.post('/', upload, function (req, res, next) {
-    // Use something more sensible.
-    console.log("Import DB");
+    _importDb(req, res, next, req.file.path);
+});
 
-    var dbFile = req.file.path;
+function _importDb(req, res, next, dbFile) {
 
-    var importedHiit = {
-        sets: [],
-        actions: []
-    };
+    console.log('Import DB', dbFile);
 
-    var db = new sqlite3.Database(req.file.path, sqlite3.OPEN_READONLY, function (error) {
+    var db = new sqlite3.Database(dbFile, sqlite3.OPEN_READONLY, function (error) {
+
         if (error) {
             console.log('Uploaded file is not a SQLite3 DB "' + dbFile + '": ' + error);
-            res.json({
-                error: error,
-                imported: null
-            });
-            return;
+            return next(error);
+        }
+    });
+
+    //db.on('profile', function (sql, ms) {
+    //    console.log('db-profile: [' + sql + '](' + ms + 'ms)');
+    //});
+    //db.on('trace', function (sql) {
+    //    console.log('db-trace  : [' + sql + ']');
+    //});
+
+    var stmtSet = db.prepare('SELECT _id, set_name AS name, rounds AS repetitions FROM table_set');
+    var stmtSetMain = db.prepare('SELECT _id, set_id, action AS name, time, color FROM table_set_main ORDER BY _id');
+    var stmtWorkout = db.prepare('SELECT _id, workout AS name FROM table_workout');
+    var stmtWorkoutSet = db.prepare('SELECT _id, workout_id, set_name AS name, rounds AS repetitions FROM table_workout_set ORDER BY _id, workout_id');
+    var stmtWorkoutMain = db.prepare('SELECT _id, workout_id, set_id, action AS name, time, color FROM table_workout_main ORDER BY _id, set_id, workout_id');
+
+    var sets = [];
+    var setActions = [];
+    var workouts = [];
+    var workoutSets = [];
+    var workoutSetActions = [];
+
+    stmtSet.each(function (err, row) {
+        console.log(row);
+        if (err) {
+            return next(err);
+        }
+        sets.push(row);
+    });
+
+    stmtSetMain.each(function (err, row) {
+        if (err) {
+            return next(err);
+        }
+        row.color = _colorFromInt(row.color);
+        setActions.push(row);
+    });
+
+    stmtWorkout.each(function (err, row) {
+        if (err) {
+            return next(err);
+        }
+        workouts.push(row);
+    });
+
+    stmtWorkoutSet.each(function (err, row) {
+        if (err) {
+            return next(err);
+        }
+        workoutSets.push(row);
+    });
+
+    stmtWorkoutMain.each(function (err, row) {
+        if (err) {
+            return next(err);
+        }
+        row.color = _colorFromInt(row.color);
+        workoutSetActions.push(row);
+    });
+
+    stmtSet.finalize();
+    stmtSetMain.finalize();
+    stmtWorkout.finalize();
+    stmtWorkoutSet.finalize();
+    stmtWorkoutMain.finalize();
+
+    db.close(function (err) {
+        if (err) {
+            console.log('Cannot close database: ' + err);
+            return next(err);
         }
 
-        console.log("DB opened");
-    });
-
-    db.on('profile', function (sql, ms) {
-        console.log('db-profile: [' + sql + '](' + ms + 'ms)');
-    });
-    db.on('trace', function (sql) {
-        console.log('db-trace  : [' + sql + ']');
-    });
-
-    db.serialize(function () {
-        console.log("DB selection");
-        db.each("SELECT set_name, rounds FROM table_set", function (err, row) {
-            console.log(row);
-            if (err) {
-                console.warn("Error when retrieving Sets", err);
-                return;
-            }
-            importedHiit.sets.push({
-                name: row.set_name,
-                round: row.rounds
-            });
-        });
-        db.each("SELECT workout FROM table_workout", function (err, row) {
-            console.log(row);
-            if (err) {
-                console.warn("Error when retrieving Workouts", err);
-                return;
-            }
-            importedHiit.workouts.push({
-                name: row.workout
-            });
-        });
+        fs.unlink(dbFile);
 
         res.json({
-            imported: importedHiit,
+            imported: _createHiit(sets, setActions, workouts, workoutSets, workoutSetActions),
             error: null
         });
     });
 
-});
+}
 
-/** Convert from a RGB (#FF00FF) color to Android int color code. */
-function _intFromColor(color) {
-    var cache, red, green, blue;
 
-    cache = /^#([\da-fA-F]{2})([\da-fA-F]{2})([\da-fA-F]{2})/.exec(color);
+function _createHiit(sets, setActions, workouts, workoutSets, workoutSetActions) {
+    var i, j, k;
+    var set, action, workout;
+    var hiit = {
+        sets: [],
+        workouts: []
+    };
 
-    if (!cache) {
-        return -1;
+    for (i = 0; i < sets.length; i++) {
+        if (!sets[i]) {
+            continue;
+        }
+        set = sets[i];
+        set.actions = [];
+        for (j = 0; j < setActions.length; j++) {
+
+            if (setActions[j] && setActions[j].set_id == set._id) {
+                action = setActions[j];
+                delete action._id;
+                delete action.set_id;
+                set.actions.push(action);
+            }
+
+        }
+
+        delete set._id;
+        hiit.sets.push(set);
     }
 
-    red = parseInt(cache[1], 16);
-    green = parseInt(cache[2], 16);
-    blue = parseInt(cache[3], 16);
+    for (i = 0; i < workouts.length; i++) {
+        if (!workouts[i]) {
+            continue;
+        }
+        workout = workouts[i];
+        workout.sets = [];
 
-    red = (red << 16) & 0x00FF0000; //Shift red 16-bits and mask out other stuff
-    green = (green << 8) & 0x0000FF00; //Shift Green 8-bits and mask out other stuff
-    blue = blue & 0x000000FF; //Mask out anything not blue.
+        for (k = 0; k < workoutSets.length; k++) {
+            if (workoutSets[k] && workoutSets[k].workout_id == workout._id) {
+                set = workoutSets[k];
 
-    return 0xFF000000 | red | green | blue; //0xFF000000 for 100% Alpha. Bitwise OR everything together.
+                set.actions = [];
+                for (j = 0; j < workoutSetActions.length; j++) {
+                    if (workoutSetActions[j] && workoutSetActions[j].set_id == set._id) {
+                        action = workoutSetActions[j];
+                        delete action._id;
+                        delete action.set_id;
+                        delete action.workout_id;
+                        set.actions.push(action);
+                    }
+
+                }
+                delete set._id;
+                delete set.workout_id;
+                workout.sets.push(set);
+            }
+
+        }
+
+        delete workout._id;
+        hiit.workouts.push(workout);
+    }
+    return hiit;
+}
+
+/** Convert from a RGB (#FF00FF) color to Android int color code. */
+function _colorFromInt(value) {
+    var _2hex = function (v) {
+        var hex = v.toString(16);
+        while (hex.length < 2) {
+            hex = '0' + hex;
+        }
+        return hex;
+    };
+
+    var red = _2hex(value & 0x0000FF);
+    var green = _2hex((value & 0x00FF00) >> 8);
+    var blue = _2hex((value & 0xFF0000) >> 16);
+    return '#' + [red, green, blue].join('');
 }
 
 module.exports = router;

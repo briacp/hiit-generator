@@ -18,8 +18,22 @@
             removeAfterUpload: true
         });
 
-        $scope.uploader.onCompleteAll = function() {
-            console.info('onCompleteAll');
+        $scope.uploader.onBeforeUploadItem = function (item) {
+            item.onSuccess = function (res) {
+                $log.debug('item.onSuccess', res);
+                if (res.imported.sets) {
+                    for (var i = 0; i < res.imported.sets.length; i++) {
+                        $scope.hiit.sets.push(res.imported.sets[i]);
+                    }
+                }
+                if (res.imported.workouts) {
+                    for (i = 0; i < res.imported.workouts.length; i++) {
+                        $scope.hiit.workouts.push(res.imported.workouts[i]);
+                    }
+                }
+
+                $scope.uploading = false;
+            };
         };
 
         $scope.toggleDebug = function () {
