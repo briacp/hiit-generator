@@ -3,14 +3,41 @@
 var express = require('express');
 var router = express.Router();
 var tmp = require('tmp');
+var fs = require('fs');
 var sqlite3 = require('sqlite3'); //.verbose();
 
 router.post('/', function (req, res) {
     // Use something more sensible.
     var locale = 'fr_FR';
 
+    _removeOldExports(24);
+
     exportToDB(req.body, locale, res);
 });
+
+/** from http://stackoverflow.com/questions/19167297/in-node-delete-all-files-older-than-an-hour */
+function _removeOldExports(ageInHours) {
+    var exportDir = __dirname + '/../hiit-exports/';
+    fs.readdir(exportDir, function (err, files) {
+        files.forEach(function (file, index) {
+            fs.stat(path.join(exportDir, file), function (err, stat) {
+                var endTime, now;
+                if (err) {
+                    return console.error(err);
+                }
+                now = new Date().getTime();
+                endTime = new Date(stat.ctime).getTime() + (3600 * 1000 * ageInHours);
+                if (now > endTime) {
+                    fs.unlink(path.join(exportDir, file), function (err) {
+                        if (err) {
+                            console.error(err);
+                        }
+                    });
+                }
+            });
+        });
+    });
+}
 
 function exportToDB(hiit, locale, res) {
 
@@ -128,11 +155,6 @@ function exportToDB(hiit, locale, res) {
         console.log('DB commit');
         db.run('COMMIT');
     });
-
-    //db.serialize(function () {
-    //    console.log('DB vacuum');
-    //    db.run('VACUUM');
-    //});
 
     db.serialize(function () {
         console.log('DB close');
