@@ -44,6 +44,7 @@ block content
       button.btn.btn-primary(type="button", ng-click="saveHiit()")
         | Save
 
+    div.btn-group.pull-right(role="group")
       button.btn.btn-default(type="button", ng-click="showUpload()")
         | Import HIIT Sets
       button.btn.btn-default(type="button", ng-click="exportHiit()", target="_blank")
@@ -54,8 +55,6 @@ block content
     div.row.menu-row(ng-show="uploading")
       label(for="ahiitFile") Upload .ahiit file:
       input#ahiitFile(, type="file", uploader="uploader", nv-file-select)
-
-
 
     div(ng-show="debug")
       dl
@@ -142,4 +141,11 @@ block content
          button.action-add.btn.btn-default.navbar-right(type='button', aria-label='Add New Action', ng-click="addAction()")
            span.glyphicon.glyphicon-plus(aria-hidden="true")
            | Add New Action
+
+    footer.footer
+      div.container
+        div.row
+          div.col-md-12.pull-right
+          a(href="mailto:hiit@briac.net")
+            img(src="img/b_32.png")
 

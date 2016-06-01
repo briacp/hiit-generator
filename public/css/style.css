@@ -6,3 +6,9 @@ a { color: #00B7FF; }
 .action-delete { cursor: pointer; margin-left: 10px; color: red }
 .set { cursor: pointer; }
 #set-editor { display: none; }
+
+
+/* Footer style */
+html { position: relative; min-height: 100%; }
+body { margin-bottom: 35px; }
+.footer { position: absolute; bottom: 0; height: 35px }
