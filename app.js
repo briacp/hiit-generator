@@ -6,12 +6,12 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var fs = require('fs');
 
 var routes = require('./routes/index');
-var exportDb = require('./routes/export-db');
-
-var importDb = require('./routes/import-db');
-var fs = require('fs');
+var shareRoute = require('./routes/share');
+var exportRoute = require('./routes/export');
+var importRoute = require('./routes/import');
 
 var app = express();
 if (app.get('env') === 'development') {
@@ -33,8 +33,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Setup Routes
 app.use('/', routes);
-app.use('/export-db', exportDb);
-app.use('/import-db', importDb);
+app.use('/export', exportRoute);
+app.use('/import', importRoute);
+app.use('/share', shareRoute);
 
 //TODO//app.use('/api', api); // redirect API calls
 //app.use('/', express.static(__dirname + '/www')); // redirect root

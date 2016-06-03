@@ -12,7 +12,7 @@
         $scope.uploading = false;
 
         $scope.uploader = new FileUploader({
-            url: '/import-db',
+            url: '/import',
             autoUpload: true,
             alias: 'ahiitFile',
             removeAfterUpload: true
@@ -72,7 +72,7 @@
 
         $scope.exportHiit = function () {
             $log.debug($scope.hiit);
-            $http.post('/export-db', $scope.hiit).success(function (data) {
+            $http.post('/export', $scope.hiit).success(function (data) {
                 $window.location.href = data.location;
             });
         };
@@ -168,10 +168,11 @@
 
 
         $scope.shareSet = function (index) {
-            $log.debug("shareSet", index);
+            $log.debug("shareSet", $scope.hiit.sets[index]);
         };
+
         $scope.shareWorkout = function (index) {
-            $log.debug("shareWorkout", index);
+            $log.debug("shareWorkout", $scope.hiit.workouts[index]);
         };
 
 
