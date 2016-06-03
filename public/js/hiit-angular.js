@@ -167,6 +167,14 @@
         };
 
 
+        $scope.shareSet = function (index) {
+            $log.debug("shareSet", index);
+        };
+        $scope.shareWorkout = function (index) {
+            $log.debug("shareWorkout", index);
+        };
+
+
         $scope.deleteSet = function (index) {
             $log.debug('Delete set "' + $scope.displayedSets[index] + '"');
             $scope.displayedSets.splice(index, 1);

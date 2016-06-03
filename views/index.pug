@@ -37,16 +37,19 @@ block content
         span.badge {{hiit.workouts.length}}
 
     div.btn-toolbar.pull-right
+
       div.btn-group(role="group")
         button.btn.btn-default(type="button", ng-click="loadHiit()")
           | Load
         button.btn.btn-primary(type="button", ng-click="saveHiit()")
           | Save
+
       div.btn-group(role="group")
         button.btn.btn-default(type="button", ng-click="showUpload()")
           | Import HIIT Sets
         button.btn.btn-default(type="button", ng-click="exportHiit()", target="_blank")
           | Export HIIT Sets
+
         //button.btn.btn-default(type="button", ng-click="toggleDebug()")
         //  | Debug
 
@@ -83,7 +86,9 @@ block content
              span.badge.workout-duration {{workoutDuration(workout)}}
 
            span.pull-right
-             button.workout-delete.btn.btn-default(type='button', aria-label='Delete Workout', data-toggle="modal", data-target="#deleteWorkoutModal")
+             //button.workout-share.btn.btn-default(type='button', aria-label='Share Workout', title='Share Workout', ng-click='shareWorkout($index)')
+             //  span.glyphicon.glyphicon-share(aria-hidden="true")
+             button.workout-delete.btn.btn-default(type='button', aria-label='Delete Workout', title='Delete Workout', data-toggle="modal", data-target="#deleteWorkoutModal")
                span.glyphicon.glyphicon-remove(aria-hidden="true")
 
     div(ng-show="currentWorkout")
@@ -96,7 +101,7 @@ block content
     h2 Sets
 
     div.row.menu-row
-      button.set-add.btn.btn-default(type='button', aria-label='Create Set', ng-click="createSet()", ng-show="!modeWorkout || currentWorkout")
+      button.set-add.btn.btn-default(type='button', aria-label='Create Set', title='Create Set', ng-click="createSet()", ng-show="!modeWorkout || currentWorkout")
         span.glyphicon.glyphicon-plus(aria-hidden="true")
         | Create Set
 
@@ -111,7 +116,9 @@ block content
            span.badge.set-duration {{setDuration(set)}}
 
          span.pull-right
-           button.set-delete.btn.btn-default(type='button', aria-label='Delete Set', data-toggle="modal", data-target="#deleteSetModal")
+           //button.set-delete.btn.btn-default(type='button', aria-label='Share Set', title='Share Set', ng-click='shareSet($index)')
+           //  span.glyphicon.glyphicon-share(aria-hidden="true")
+           button.set-delete.btn.btn-default(type='button', aria-label='Delete Set', title='Delete Set', data-toggle="modal", data-target="#deleteSetModal")
              span.glyphicon.glyphicon-remove(aria-hidden="true")
 
     div(ng-show="currentSet")
@@ -144,12 +151,10 @@ block content
 
     footer.footer
       div.container
-        div.row
-          div.col-md-10
-          div.col-md-1
-            a(href="https://github.com/briacp/hiit-generator", title="Code available on GitHub")
-              img(src="img/GitHub-Mark-32px.png")
-          div.col-md-1
-            a(href="mailto:hiit@briac.net")
-              img(src="img/b_32.png")
-
+         div.pull-right.footer-icons
+           a(href="https://github.com/briacp/hiit-generator", title="Code available on GitHub")
+             img(src="img/GitHub-Mark-32px.png")
+           a(href="https://twitter.com/intent/tweet?text=Generate sets and workouts for the A HIIT Interval Timer Android application.&url=http://hiit.briac.net/", title="Share on Twitter")
+             img(src="img/twitter.png")
+           a(href="mailto:hiit@briac.net")
+             img(src="img/b_32.png")
