@@ -13,6 +13,9 @@ var shareRoute = require('./routes/share');
 var exportRoute = require('./routes/export');
 var importRoute = require('./routes/import');
 
+
+require('./init');
+
 var app = express();
 if (app.get('env') === 'development') {
     app.locals.pretty = true;
@@ -37,6 +40,8 @@ app.use('/export', exportRoute);
 app.use('/import', importRoute);
 app.use('/share', shareRoute);
 
+app.use('/hiit', express.static(__dirname + '/hiit-exports'));
+
 //TODO//app.use('/api', api); // redirect API calls
 //app.use('/', express.static(__dirname + '/www')); // redirect root
 
@@ -60,17 +65,6 @@ app.use('/uib/template', express.static(__dirname + '/node_modules/angular-ui-bo
 app.use('/js', express.static(__dirname + '/node_modules/angular-bootstrap-colorpicker/js'));
 app.use('/css', express.static(__dirname + '/node_modules/angular-bootstrap-colorpicker/css'));
 app.use('/img', express.static(__dirname + '/node_modules/angular-bootstrap-colorpicker/img'));
-
-if (!fs.existsSync('hiit-exports')) {
-    fs.mkdirSync('hiit-exports');
-}
-app.use('/hiit', express.static(__dirname + '/hiit-exports'));
-
-
-if (!fs.existsSync('tmp-import')) {
-    fs.mkdirSync('tmp-import');
-}
-
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
     var err = new Error('Not Found');
