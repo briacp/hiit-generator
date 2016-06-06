@@ -4,7 +4,7 @@
 
     angular
     // App
-    .module('hiitTimerApp', ['htmlSortable', 'colorpicker.module', 'ui.bootstrap', 'LocalStorageModule', 'angularFileUpload'])
+    .module('hiitTimerApp', ['htmlSortable', 'ui.bootstrap', 'LocalStorageModule', 'angularFileUpload'])
     // Controller
     .controller('hiitEditorCtrl', function ($scope, $http, $window, $log, localStorageService, FileUploader) {
         $scope.modeWorkout = false;
