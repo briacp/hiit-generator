@@ -53,10 +53,6 @@
         $scope.showWorkouts = function () {
             $log.debug('showWorkouts');
             $scope.modeWorkout = true;
-            if ($scope.hiit) {
-                $scope.currentWorkout = $scope.hiit.workouts[0];
-                $scope.displayedSets = $scope.currentWorkout.sets;
-            }
             $scope.currentSet = null;
         };
 
@@ -166,13 +162,25 @@
             $('#set-editor').slideDown();
         };
 
+        var _share = function (shareType, shareData) {
+            $log.debug("share", shareType, shareData);
+            $http.post('/share', {
+                shareType: shareType,
+                shareData: shareData
+            }).success(function (data) {
+                console.log(data.shareKey);
+                $scope.shareKey = data.shareKey;
+                $scope.shareType = shareType;
+                $('#shareModal').modal();
+            });
+        };
 
         $scope.shareSet = function (index) {
-            $log.debug("shareSet", $scope.hiit.sets[index]);
+            _share('set', $scope.hiit.sets[index]);
         };
 
         $scope.shareWorkout = function (index) {
-            $log.debug("shareWorkout", $scope.hiit.workouts[index]);
+            _share('workout', $scope.hiit.workouts[index]);
         };
 
 
@@ -229,6 +237,47 @@
         }
 
 
-    });
+    })
+    // Custom directive for mm:ss conversion
+    .directive("formatMinutesSeconds", function () {
+        return {
+            require: 'ngModel',
+            link: function (scope, element, attrs, ngModelController) {
+                // Conversion View => Model
+                ngModelController.$parsers.push(function (data) {
+                    console.log("parser", data);
+                    var match;
+                    if (match = data.match(/^(\d+):(\d+)$/)) {
+                        var min = parseInt(match[1], 10);
+                        var sec = parseInt(match[2], 10);
+                        return min * 60 + sec;
+                    }
+                    return parseInt(data, 10);
+                });
+
+                // Conversion Model => View
+                ngModelController.$formatters.push(function (data) {
+                    console.log("formatters", data);
+                    var secs = parseInt(data, 10);
+                    if (!secs) {
+                        return '';
+                    }
+
+                    var minutes = Math.floor(secs / 60);
+                    var seconds = secs - (minutes * 60);
+
+                    if (!minutes) {
+                        return seconds;
+                    }
+
+                    // Zero pad
+                    seconds = ('00' + seconds).substr(-2, 2);
+
+                    return minutes + ':' + seconds;
+                });
+            }
+        };
+    })
+    ;
 
 })();

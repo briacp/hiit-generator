@@ -2,11 +2,77 @@
 'use strict';
 var express = require('express');
 var rid = require('readable-id');
+var sqlite3 = require('sqlite3'); //.verbose();
 
 var router = express.Router();
+var dbFile = 'hiit.db';
 
-router.get("/", function(req,res) {
-    res.send("<h1>" + rid() + "</h1>");
+function _getDb(res) {
+    var db = new sqlite3.Database(dbFile, function (error) {
+        if (error) {
+            console.error('Cannot open database "' + dbFile + '": ' + error);
+            res.json({
+                error: error
+            });
+            return;
+        }
+    });
+
+    db.on('trace', function (sql) {
+        console.log('db-trace  : [' + sql + ']');
+    });
+
+    return db;
+}
+
+router.param('shareKey', function (req, res, next, shareKey) {
+    req.shareKey = shareKey;
+    next();
+});
+
+router.get('/:shareKey', function (req, res, next) {
+    var db = _getDb(res);
+    db.get('SELECT _id, share_type AS shareType, data as shareData FROM table_share WHERE key=?', req.shareKey, function (err, row) {
+        if (err) {
+            return next(err);
+        }
+
+
+        if (!row) {
+            res.json({});
+            return;
+        }
+
+        var shareData = {};
+
+        try {
+            shareData = JSON.parse(row.shareData);
+        } catch (e) {
+            console.warn('Invalid JSON', row.shareData);
+        }
+
+        res.render('index', { share:{
+            shareData: shareData
+        } });
+        res.json();
+    });
+});
+
+router.post('/', function (req, res) {
+
+    // TODO - Sanitize req parameters?
+    var shareData = JSON.stringify(req.body.shareData);
+
+    var db = _getDb(res);
+
+    // TODO - Check if there is alrady an entry with the same data?
+
+    var shareKey = rid();
+    db.run('INSERT INTO table_share (share_type, key, data) VALUES(?, ?, ?)', req.body.shareType, shareKey, shareData);
+
+    res.json({
+        shareKey: shareKey
+    });
 });
 
 module.exports = router;

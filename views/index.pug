@@ -2,64 +2,81 @@ extends layout
 
 block content
 
-  div.container(ng-app="hiitTimerApp", ng-controller="hiitEditorCtrl")
+  div.container(ng-app='hiitTimerApp', ng-controller='hiitEditorCtrl')
 
     div.page-header
       h1 HIIT Generator 
         small Sets and Workout Editor
 
     mixin modalDialog(dialogId, title, text, action, actionText)
-      div.modal.fade(id=dialogId, tabindex="-1", role="dialog")
+      div.modal.fade(id=dialogId, tabindex='-1', role='dialog')
         div.modal-dialog
           div.modal-content
             div.modal-header
-              button.close(type="button", data-dismiss="modal", aria-label="Close")
-                span(aria-hidden="true") &times;
+              button.close(type='button', data-dismiss='modal', aria-label='Close')
+                span(aria-hidden='true') &times;
               h4.modal-title= title
             div.modal-body= text
             div.modal-footer
-              button.btn.btn-default(type="button", data-dismiss="modal") Cancel
-              button.btn.btn-primary(type="button", ng-click=action, data-dismiss="modal")= actionText
+              button.btn.btn-default(type='button', data-dismiss='modal') Cancel
+              button.btn.btn-primary(type='button', ng-click=action, data-dismiss='modal')= actionText
 
-    +modalDialog("deleteSetModal", "Delete Set", "Are you sure you want to delete the set {{currentSet.name}}?", "deleteSet(currentSet.index);", "Delete Set")
-    +modalDialog("deleteWorkoutModal", "Delete Workout", "Are you sure you want to delete the workout {{currentWorkout.name}}?", "deleteWorkout(currentWorkout.index);", "Delete Workout")
+    +modalDialog('deleteSetModal', 'Delete Set', 'Are you sure you want to delete the set {{currentSet.name}}?', 'deleteSet(currentSet.index);', 'Delete Set')
+    +modalDialog('deleteWorkoutModal', 'Delete Workout', 'Are you sure you want to delete the workout {{currentWorkout.name}}?', 'deleteWorkout(currentWorkout.index);', 'Delete Workout')
+
+    div.modal.fade(id='shareModal', tabindex='-1', role='dialog')
+      div.modal-dialog
+        div.modal-content
+          div.modal-header
+            button.close(type='button', data-dismiss='modal', aria-label='Close')
+              span(aria-hidden='true') &times;
+            h4.modal-title Share a {{shareType}}
+          div.modal-body
+            | You can share this {{shareType}} by copying this URL:
+            input(type='text', class='form-control', value='http://hiit.briac.net/share/{{shareKey}}')
+            br
+            | Or you can 
+            a(href='https://twitter.com/intent/tweet?text=Hey, try this HIIT {{shareType}}! %23HiitTimer&url=http://hiit.briac.net/share/{{shareKey}}', target='twitter', title='Share on Twitter')
+              | tweet about it
+            | .
+          div.modal-footer
+            button.btn.btn-default(type='button', data-dismiss='modal') Close
 
     p Edit and generate sets and workouts for the 
-      a(href="https://play.google.com/store/apps/details?id=com.pimpimmobile.atimer", target="_blank") A HIIT Interval Timer
+      a(href='https://play.google.com/store/apps/details?id=com.pimpimmobile.atimer', target='_blank') A HIIT Interval Timer
       |  Android application.
 
-    div.btn-group.btn-group-lg(role="group")
-      button.btn.btn-primary(type="button", ng-click="showSets()")
+    div.btn-group.btn-group-lg(role='group')
+      button.btn.btn-primary(type='button', ng-click='showSets()')
         | Sets 
         span.badge {{hiit.sets.length}}
-      button.btn.btn-primary(type="button", ng-click="showWorkouts()")
+      button.btn.btn-primary(type='button', ng-click='showWorkouts()')
         | Workouts 
         span.badge {{hiit.workouts.length}}
 
     div.btn-toolbar.pull-right
 
-      div.btn-group(role="group")
-        button.btn.btn-default(type="button", ng-click="loadHiit()")
+      div.btn-group(role='group')
+        button.btn.btn-default(type='button', ng-click='loadHiit()')
           | Load
-        button.btn.btn-primary(type="button", ng-click="saveHiit()")
+        button.btn.btn-primary(type='button', ng-click='saveHiit()')
           | Save
 
-      div.btn-group(role="group")
-        button.btn.btn-default(type="button", ng-click="showUpload()")
+      div.btn-group(role='group')
+        button.btn.btn-default(type='button', ng-click='showUpload()')
           | Import HIIT Sets
-        button.btn.btn-default(type="button", ng-click="exportHiit()", target="_blank")
+        button.btn.btn-default(type='button', ng-click='exportHiit()', target='_blank')
           | Export HIIT Sets
 
-        //button.btn.btn-default(type="button", ng-click="toggleDebug()")
-        //  | Debug
+        button.btn.btn-default(type='button', ng-click='toggleDebug()') Debug
 
 
 
-    div.row.menu-row(ng-show="uploading")
-      label(for="ahiitFile") Upload .ahiit file:
-      input#ahiitFile(, type="file", uploader="uploader", nv-file-select)
+    div.row.menu-row(ng-show='uploading')
+      label(for='ahiitFile') Upload .ahiit file:
+      input#ahiitFile(, type='file', uploader='uploader', nv-file-select)
 
-    div(ng-show="debug")
+    div(ng-show='debug')
       dl
         dt hiit
         dd {{hiit}}
@@ -70,15 +87,15 @@ block content
         dt currentSet
         dd {{currentSet}}
 
-    div(ng-show="modeWorkout")
+    div(ng-show='modeWorkout')
       h2 Workouts
       div.row.menu-row
-        button.set-add.btn.btn-default(type='button', aria-label='Create Workout', ng-click="createWorkout()")
-          span.glyphicon.glyphicon-plus(aria-hidden="true")
+        button.set-add.btn.btn-default(type='button', aria-label='Create Workout', ng-click='createWorkout()')
+          span.glyphicon.glyphicon-plus(aria-hidden='true')
           | Create Workout
 
       div.list-group.workout-list
-        div.workout.list-group-item.clearfix(ng-repeat="workout in hiit.workouts", ng-click="showWorkout(workout, $index)")
+        div.workout.list-group-item.clearfix(ng-repeat='workout in hiit.workouts', ng-click='showWorkout(workout, $index)')
            h4.workout.list-group-item-heading {{workout.name}}
            p.list-group-item-text
              span.workout-actions {{workout.sets.length}}
@@ -86,75 +103,76 @@ block content
              span.badge.workout-duration {{workoutDuration(workout)}}
 
            span.pull-right
-             //button.workout-share.btn.btn-default(type='button', aria-label='Share Workout', title='Share Workout', ng-click='shareWorkout($index)')
-             //  span.glyphicon.glyphicon-share(aria-hidden="true")
-             button.workout-delete.btn.btn-default(type='button', aria-label='Delete Workout', title='Delete Workout', data-toggle="modal", data-target="#deleteWorkoutModal")
-               span.glyphicon.glyphicon-remove(aria-hidden="true")
+             //button.workout-share.btn.btn-default(type='button', aria-label='Share Workout', title='Share Workout', ng-click='shareWorkout($index); $event.stopPropagation();')
+             //  span.glyphicon.glyphicon-share(aria-hidden='true')
+             button.workout-delete.btn.btn-default(type='button', aria-label='Delete Workout', title='Delete Workout', data-toggle='modal', data-target='#deleteWorkoutModal')
+               span.glyphicon.glyphicon-remove(aria-hidden='true')
 
-    div(ng-show="currentWorkout")
+    div(ng-show='currentWorkout')
        h2 Edit Workout
        div.row
          div.form-group.col-md-12
            label(for='workoutName') Name
-           input.form-control(id="workoutName", name='workoutName', ng-model="currentWorkout.name", type='text', placeholder='Workout Name')
+           input.form-control(id='workoutName', name='workoutName', ng-model='currentWorkout.name', type='text', placeholder='Workout Name')
 
-    h2 Sets
+    div(ng-show='!modeWorkout || currentWorkout')
+      h2 Sets
 
-    div.row.menu-row
-      button.set-add.btn.btn-default(type='button', aria-label='Create Set', title='Create Set', ng-click="createSet()", ng-show="!modeWorkout || currentWorkout")
-        span.glyphicon.glyphicon-plus(aria-hidden="true")
-        | Create Set
+      div.row.menu-row
+        button.set-add.btn.btn-default(type='button', aria-label='Create Set', title='Create Set', ng-click='createSet()', ng-show='!modeWorkout || currentWorkout')
+          span.glyphicon.glyphicon-plus(aria-hidden='true')
+          | Create Set
 
-    div.list-group.set-list(html-sortable, ng-model="displayedSets")
-      div.set.list-group-item.clearfix(ng-repeat="set in displayedSets", ng-click="showSet(set, $index)")
-         h4.set-name.list-group-item-heading {{set.name}}
-         p.list-group-item-text
-           span.set-actions {{set.actions.length}}
-           |  actions, 
-           span.set-reps {{set.repetitions}}
-           |  rounds 
-           span.badge.set-duration {{setDuration(set)}}
+      div.list-group.set-list(html-sortable, ng-model='displayedSets')
+        div.set.list-group-item.clearfix(ng-repeat='set in displayedSets', ng-click='showSet(set, $index)')
+           h4.set-name.list-group-item-heading {{set.name}}
+           p.list-group-item-text
+             span.set-actions {{set.actions.length}}
+             |  actions, 
+             span.set-reps {{set.repetitions}}
+             |  rounds 
+             span.badge.set-duration {{setDuration(set)}}
 
-         span.pull-right
-           //button.set-delete.btn.btn-default(type='button', aria-label='Share Set', title='Share Set', ng-click='shareSet($index)')
-           //  span.glyphicon.glyphicon-share(aria-hidden="true")
-           button.set-delete.btn.btn-default(type='button', aria-label='Delete Set', title='Delete Set', data-toggle="modal", data-target="#deleteSetModal")
-             span.glyphicon.glyphicon-remove(aria-hidden="true")
+           span.pull-right
+             button.set-delete.btn.btn-default(type='button', aria-label='Share Set', title='Share Set', ng-click='shareSet($index); $event.stopPropagation();')
+               span.glyphicon.glyphicon-share(aria-hidden='true')
+             button.set-delete.btn.btn-default(type='button', aria-label='Delete Set', title='Delete Set', data-toggle='modal', data-target='#deleteSetModal')
+               span.glyphicon.glyphicon-remove(aria-hidden='true')
 
-    div(ng-show="currentSet")
+    div(ng-show='currentSet')
        h2 Edit Set
        div.row
          div.form-group.col-md-10
            label(for='setName') Name
-           input.form-control(id="setName", name='setName', ng-model="currentSet.name", type='text', placeholder='Set Name')
+           input.form-control(id='setName', name='setName', ng-model='currentSet.name', type='text', placeholder='Set Name')
          div.form-group.col-md-2
            label(for='setRepetitions') Rounds
-           input.form-control(id="setRepetitions", name='setRepetitions', ng-model="currentSet.repetitions", type='text', placeholder='Number of Repetitions')
+           input.form-control(id='setRepetitions', name='setRepetitions', ng-model='currentSet.repetitions', type='text', placeholder='Number of Repetitions')
 
-       div#actions(html-sortable, ng-model="currentSet.actions")
-         div.row.action-row(ng-repeat="action in currentSet.actions")
-           span.action-delete.pull-right.glyphicon.glyphicon-remove(aria-hidden="true", title="Delete Action", ng-click="deleteAction(action, $index); $event.stopPropagation()")
+       div#actions(html-sortable, ng-model='currentSet.actions')
+         div.row.action-row(ng-repeat='action in currentSet.actions')
+           span.action-delete.pull-right.glyphicon.glyphicon-remove(aria-hidden='true', title='Delete Action', ng-click='deleteAction(action, $index); $event.stopPropagation()')
            div.form-group.col-md-7
              label.sr-only(for='actionName') Name
-             input.form-control(name='actionName', type='text', ng-model="action.name", placeholder='Action Name')
+             input.form-control(name='actionName', type='text', ng-model='action.name', placeholder='Action Name')
            div.form-group.col-md-2
              label.sr-only(for='actionColors') Color
-             input.form-control.input-group(colorpicker="hex", ng-model="action.color", colorpicker-parent="true", name='actionColor', type='text', placeholder="Color")
+             input.form-control.input-group(colorpicker='hex', ng-model='action.color', colorpicker-parent='true', name='actionColor', type='text', placeholder='Color')
            div.form-group.col-md-2
              label.sr-only(for='actionTime') Time
-             input.form-control(name='actionTime', type='text', ng-model="action.time", pattern="[0-9]{1,}", title="ss", placeholder='Seconds')
+             input.form-control(name='actionTime', format-minutes-seconds, type='text', ng-model='action.time', title='mm:ss', placeholder='Seconds')
 
        div.row.menu-row
-         button.action-add.btn.btn-default.navbar-right(type='button', aria-label='Add New Action', ng-click="addAction()")
-           span.glyphicon.glyphicon-plus(aria-hidden="true")
+         button.action-add.btn.btn-default.navbar-right(type='button', aria-label='Add New Action', ng-click='addAction()')
+           span.glyphicon.glyphicon-plus(aria-hidden='true')
            | Add New Action
 
     footer.footer
       div.container
          div.pull-right.footer-icons
-           a(href="https://github.com/briacp/hiit-generator", title="Code available on GitHub")
-             img(src="img/GitHub-Mark-32px.png")
-           a(href="https://twitter.com/intent/tweet?text=Generate sets and workouts for the A HIIT Interval Timer Android application.&url=http://hiit.briac.net/", title="Share on Twitter")
-             img(src="img/twitter.png")
-           a(href="mailto:hiit@briac.net")
-             img(src="img/b_32.png")
+           a(href='https://github.com/briacp/hiit-generator', title='Code available on GitHub')
+             img(src='img/GitHub-Mark-32px.png')
+           a(href='https://twitter.com/intent/tweet?text=Generate sets and workouts for the A HIIT Interval Timer Android application. %23HiitTimer&url=http://hiit.briac.net/', target='twitter', title='Share on Twitter')
+             img(src='img/twitter.png')
+           a(href='mailto:hiit@briac.net')
+             img(src='img/b_32.png')
