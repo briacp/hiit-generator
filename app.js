@@ -61,10 +61,6 @@ app.use('/js', express.static(__dirname + '/node_modules/angular-ui-bootstrap/di
 app.use('/css', express.static(__dirname + '/node_modules/angular-ui-bootstrap/dist'));
 app.use('/uib/template', express.static(__dirname + '/node_modules/angular-ui-bootstrap/template'));
 
-// XXX To remove
-app.use('/js', express.static(__dirname + '/node_modules/angular-bootstrap-colorpicker/js'));
-app.use('/css', express.static(__dirname + '/node_modules/angular-bootstrap-colorpicker/css'));
-app.use('/img', express.static(__dirname + '/node_modules/angular-bootstrap-colorpicker/img'));
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
     var err = new Error('Not Found');

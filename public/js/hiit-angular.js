@@ -11,6 +11,46 @@
         $scope.debug = false;
         $scope.uploading = false;
 
+        // Only some colors are allowed in the app
+        $scope.colors = [{
+            name: 'White',
+            hex: '#ffffff'
+        }, {
+            name: 'Red',
+            hex: '#ff0000'
+        }, {
+            name: 'Green',
+            hex: '#00ff00'
+        }, {
+            name: 'Blue',
+            hex: '#ff0000'
+        }, {
+            name: 'Yellow',
+            hex: '#ffff00'
+        }, {
+            name: 'Cyan',
+            hex: '#0000ff'
+        }, {
+            name: 'Magenta',
+            hex: '#ff00ff'
+        }];
+
+        $scope.changeColor = function (color, action) {
+            console.log('changeColor', color, action);
+            action.color = color.hex;
+        };
+
+
+        $scope.colorName = function (hex) {
+            var c = $scope.colors;
+            for (var i = 0; i < c.length; i++) {
+                if (c[i].hex.toUpperCase() == hex.toUpperCase()) {
+                    return c[i].name;
+                }
+            }
+            return 'White';
+        }
+
         $scope.uploader = new FileUploader({
             url: '/import',
             autoUpload: true,
@@ -20,9 +60,10 @@
 
         $scope.uploader.onBeforeUploadItem = function (item) {
             item.onSuccess = function (res) {
+                var i;
                 $log.debug('item.onSuccess', res);
                 if (res.imported.sets) {
-                    for (var i = 0; i < res.imported.sets.length; i++) {
+                    for (i = 0; i < res.imported.sets.length; i++) {
                         $scope.hiit.sets.push(res.imported.sets[i]);
                     }
                 }
@@ -62,7 +103,7 @@
         };
 
         $scope.importHiit = function () {
-            $log.debug("import .ahiit");
+            $log.debug('import .ahiit');
             $log.debug($scope.uploader);
         };
 
@@ -163,7 +204,7 @@
         };
 
         var _share = function (shareType, shareData) {
-            $log.debug("share", shareType, shareData);
+            $log.debug('share', shareType, shareData);
             $http.post('/share', {
                 shareType: shareType,
                 shareData: shareData
@@ -239,7 +280,7 @@
 
     })
     // Custom directive for mm:ss conversion
-    .directive("formatMinutesSeconds", function () {
+    .directive('formatMinutesSeconds', function () {
         return {
             require: 'ngModel',
             link: function (scope, element, attrs, ngModelController) {
@@ -275,7 +316,6 @@
                 });
             }
         };
-    })
-    ;
+    });
 
 })();
