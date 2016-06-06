@@ -6,6 +6,6 @@ Unofficial Node/Angular application to easily create Workouts and Sets for the [
 
 ### Todo
 
-* Fix color picker to only choose between valid colors (white, red, green, yellow, magenta, cyan)
 * Workout should allow the reuse and copy of existing sets
 * Allow sharing of sets and workouts
+
