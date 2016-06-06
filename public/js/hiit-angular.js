@@ -245,7 +245,6 @@
             link: function (scope, element, attrs, ngModelController) {
                 // Conversion View => Model
                 ngModelController.$parsers.push(function (data) {
-                    console.log("parser", data);
                     var match;
                     if (match = data.match(/^(\d+):(\d+)$/)) {
                         var min = parseInt(match[1], 10);
@@ -257,7 +256,6 @@
 
                 // Conversion Model => View
                 ngModelController.$formatters.push(function (data) {
-                    console.log("formatters", data);
                     var secs = parseInt(data, 10);
                     if (!secs) {
                         return '';
