@@ -39,7 +39,13 @@ router.get('/:shareKey', function (req, res, next) {
 
 
         if (!row) {
-            res.render('share', { error: "No matching workout found, sorry!", share: JSON.stringify({shareType:"error", shareData:{}})});
+            res.render('share', {
+                error: 'No matching workout found, sorry!',
+                share: JSON.stringify({
+                    shareType: 'error',
+                    shareData: {}
+                })
+            });
             return;
         }
 
@@ -61,27 +67,40 @@ router.get('/:shareKey', function (req, res, next) {
     });
 });
 
-router.post('/', function (req, res) {
+router.post('/', function (req, res, next) {
 
     // TODO - Sanitize req parameters?
     var shareData = JSON.stringify(req.body.shareData);
 
     var db = _getDb(res);
 
-    // TODO - Check if there is alrady an entry with the same data?
-    var shareKey = rid();
-    db.serialize(function () {
-      db.run('INSERT INTO table_share (share_type, key, data) VALUES(?, ?, ?)', req.body.shareType, shareKey, shareData, function(err){
+    // Check if there is already an entry with the same data
+    db.get('SELECT key AS shareKey FROM table_share WHERE share_type=? AND data=?', req.body.shareType, shareData, function (err, row) {
         if (err) {
             console.error(err);
             return next(err);
         }
-      });
+
+        if (row) {
+            res.json({
+                shareKey: row.shareKey
+            });
+            return;
+        }
+
+        var shareKey = rid();
+        db.run('INSERT INTO table_share (share_type, key, data) VALUES(?, ?, ?)', req.body.shareType, shareKey, shareData, function (err) {
+            if (err) {
+                console.error(err);
+                return next(err);
+            }
+        });
+
+        res.json({
+            shareKey: shareKey
+        });
     });
 
-    res.json({
-        shareKey: shareKey
-    });
 });
 
 module.exports = router;
