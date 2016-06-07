@@ -14,5 +14,5 @@ body { margin-bottom: 40px; }
 .footer { position: absolute; bottom: 0; height: 40px }
 .footer-icons a { padding-left: 15px }
 
-.colorSquare { display:inline-block; width: 15px; height: 15px; margin-right: 4px; border: Solid 1px #212121; }
+.colorSquare { display:inline-block; border-radius:7.5px; width: 15px; height: 15px; margin-right: 4px; border: Solid 1px rgba(33,33,33,0.33); }
 
