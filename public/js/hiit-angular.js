@@ -172,6 +172,7 @@
                 console.log(data.shareKey);
                 $scope.shareKey = data.shareKey;
                 $scope.shareType = shareType;
+                $scope.shareData = shareData;
                 $('#shareModal').modal();
             });
         };

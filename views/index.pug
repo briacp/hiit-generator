@@ -43,7 +43,7 @@ block content
             input(type='text', class='form-control', value='http://hiit.briac.net/share/{{shareKey}}')
             br
             | Or you can 
-            a(href='https://twitter.com/intent/tweet?text=Hey, try this HIIT {{shareType}}! %23HiitTimer&url=http://hiit.briac.net/share/{{shareKey}}', target='twitter', title='Share on Twitter')
+            a(href='https://twitter.com/intent/tweet?text=Hey, try this {{shareData.name}} {{shareType}}! %23HiitTimer&url=http://hiit.briac.net/share/{{shareKey}}', target='twitter', title='Share on Twitter')
               | tweet about it
             | .
           div.modal-footer
