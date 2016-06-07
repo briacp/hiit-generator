@@ -1,12 +1,13 @@
 /*global angular:true */
-/*jshint bitwise:true, browser:true, camelcase:true, curly:true, devel:false, eqeqeq:false, forin:true, immed:true, indent:4, newcap:true, noarg:true, noempty:true, nonew:true, quotmark:true, regexp:false, strict:true, trailing:true, undef:true, unused:true */ (function () {
+/*jshint bitwise:true, browser:true, camelcase:true, curly:true, devel:false, eqeqeq:false, forin:true, immed:true, indent:4, newcap:true, noarg:true, noempty:true, nonew:true, quotmark:true, regexp:false, strict:true, trailing:true, undef:true, unused:true */
+(function () {
     'use strict';
 
     angular
     // App
     .module('hiitTimerApp', ['htmlSortable', 'ui.bootstrap', 'LocalStorageModule', 'angularFileUpload'])
     // Controller
-    .controller('hiitEditorCtrl', function ($scope, $http, $window, $log, localStorageService, FileUploader) {
+    .controller('hiitEditorCtrl', function ($scope, $http, $window, $log, localStorageService, FileUploader, durationFactory) {
         $scope.modeWorkout = false;
         $scope.debug = false;
         $scope.uploading = false;
@@ -23,16 +24,16 @@
             hex: '#00ff00'
         }, {
             name: 'Blue',
-            hex: '#ff0000'
-        }, {
-            name: 'Yellow',
-            hex: '#ffff00'
+            hex: '#0000ff'
         }, {
             name: 'Cyan',
-            hex: '#0000ff'
+            hex: '#00ffff'
         }, {
             name: 'Magenta',
             hex: '#ff00ff'
+        }, {
+            name: 'Yellow',
+            hex: '#ffff00'
         }];
 
         $scope.changeColor = function (color, action) {
@@ -49,7 +50,7 @@
                 }
             }
             return 'White';
-        }
+        };
 
         $scope.uploader = new FileUploader({
             url: '/import',
@@ -112,47 +113,6 @@
             $http.post('/export', $scope.hiit).success(function (data) {
                 $window.location.href = data.location;
             });
-        };
-
-        $scope.workoutDuration = function (workout, returnSec) {
-            var duration = 0;
-
-            for (var i = 0; i < workout.sets.length; i++) {
-                duration += $scope.setDuration(workout.sets[i], true);
-            }
-
-            return returnSec ? duration : sec2minsec(duration);
-        };
-
-        $scope.setDuration = function (set, returnSec) {
-            var reps = set.repetitions;
-            var roundDuration = 0;
-            for (var i = 0; i < set.actions.length; i++) {
-                var t = set.actions[i].time;
-                t = t ? parseInt(t, 10) : 0;
-                roundDuration += t;
-            }
-
-            //$log.debug('Duration "' + set.name + '":' + roundDuration + '*' + reps + '=' + (roundDuration * reps) + 'sec.');
-
-            return returnSec ? roundDuration * reps : sec2minsec(roundDuration * reps);
-        };
-
-        // Converts and display time from seconds to mm:ss
-        var sec2minsec = function (secs) {
-
-            if (!secs) {
-                return '';
-            }
-
-            var minutes = Math.floor(secs / 60);
-            var seconds = secs - (minutes * 60);
-
-            // Zero pad
-            minutes = ('00' + minutes).substr(-2, 2);
-            seconds = ('00' + seconds).substr(-2, 2);
-
-            return minutes + ':' + seconds;
         };
 
         $scope.createWorkout = function () {
@@ -241,10 +201,6 @@
         $scope.showSet = function (set, index) {
             $log.debug(set, index);
 
-            //var currentSet = {};
-            //angular.copy(set, currentSet);
-            //$scope.currentSet = currentSet;
-
             $scope.currentSet = set;
             $scope.currentSet.index = index;
 
@@ -277,6 +233,113 @@
             $scope.showSets();
         }
 
+        // Delegate methods
+        $scope.workoutDuration = function (workout) {
+            return durationFactory.workoutDuration(workout);
+        };
+        $scope.setDuration = function (set) {
+            return durationFactory.setDuration(set);
+        };
+        $scope.actionDuration = function (action) {
+            return durationFactory.actionDuration(action);
+        };
+        $scope.hasLocalStorage = function () {
+            return localStorageService.isSupported;
+        };
+    })
+    // Share Controller
+    .controller('hiitShareCtrl', function ($scope, $window, $log, localStorageService, durationFactory) {
+        //XXX The attribute ng-init="share=#{JSON.stringify(share)}" is not interpolated by Jade
+        $scope.share = $window._share;
+        $scope.addToStorage = function () {
+            $log.debug('addToStorage', $scope.share);
+            if (localStorageService.isSupported) {
+                $scope.hiit = localStorageService.get('hiit');
+                if ($scope.share.shareType == 'set') {
+                    $scope.hiit.sets.push($scope.share.shareData);
+                }
+                else if ($scope.share.shareType == 'workout') {
+                    $scope.hiit.workouts.push($scope.share.shareData);
+
+                }
+                $log.debug("Saved share", $scope.share.shareType, $scope.hiit);
+                localStorageService.set('hiit', $scope.hiit);
+                $window.location = "/";
+            }
+        };
+
+        // Delegate methods
+        $scope.workoutDuration = function (workout) {
+            return durationFactory.workoutDuration(workout);
+        };
+        $scope.setDuration = function (set) {
+            return durationFactory.setDuration(set);
+        };
+        $scope.actionDuration = function (action) {
+            return durationFactory.actionDuration(action);
+        };
+        $scope.hasLocalStorage = function () {
+            return localStorageService.isSupported;
+        };
+    })
+    // Factories
+    .factory('durationFactory', function () {
+        // Converts and display time from seconds to mm:ss
+        var sec2minsec = function (secs) {
+
+            if (!secs) {
+                return '';
+            }
+
+            var minutes = Math.floor(secs / 60);
+            var seconds = secs - (minutes * 60);
+
+            // Zero pad
+            minutes = ('00' + minutes).substr(-2, 2);
+            seconds = ('00' + seconds).substr(-2, 2);
+
+            return minutes + ':' + seconds;
+        };
+
+        var actionDuration = function (action) {
+            return action && action.time ? sec2minsec(action.time) : null;
+        };
+
+        var workoutDuration = function (workout, returnSec) {
+            if (!workout || !workout.sets) {
+                return null;
+            }
+            var duration = 0;
+
+            for (var i = 0; i < workout.sets.length; i++) {
+                duration += setDuration(workout.sets[i], true);
+            }
+
+            return returnSec ? duration : sec2minsec(duration);
+        };
+
+        var setDuration = function (set, returnSec) {
+            if (!set) {
+                return null;
+            }
+            var reps = set.repetitions;
+            var roundDuration = 0;
+            for (var i = 0; i < set.actions.length; i++) {
+                var t = set.actions[i].time;
+                t = t ? parseInt(t, 10) : 0;
+                roundDuration += t;
+            }
+
+            //$log.debug('Duration "' + set.name + '":' + roundDuration + '*' + reps + '=' + (roundDuration * reps) + 'sec.');
+
+            return returnSec ? roundDuration * reps : sec2minsec(roundDuration * reps);
+        };
+
+        return {
+            actionDuration: actionDuration,
+            setDuration: setDuration,
+            workoutDuration: workoutDuration
+        };
 
     })
     // Custom directive for mm:ss conversion
