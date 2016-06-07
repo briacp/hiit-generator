@@ -39,7 +39,7 @@ router.get('/:shareKey', function (req, res, next) {
 
 
         if (!row) {
-            res.json({});
+            res.render('share', { error: "No matching workout found, sorry!", share: JSON.stringify({shareType:"error", shareData:{}})});
             return;
         }
 
@@ -51,9 +51,12 @@ router.get('/:shareKey', function (req, res, next) {
             console.warn('Invalid JSON', row.shareData);
         }
 
-        res.render('index', { share:{
-            shareData: shareData
-        } });
+        res.render('share', {
+            share: JSON.stringify({
+                shareType: row.shareType,
+                shareData: shareData
+            })
+        });
         res.json();
     });
 });
@@ -66,9 +69,15 @@ router.post('/', function (req, res) {
     var db = _getDb(res);
 
     // TODO - Check if there is alrady an entry with the same data?
-
     var shareKey = rid();
-    db.run('INSERT INTO table_share (share_type, key, data) VALUES(?, ?, ?)', req.body.shareType, shareKey, shareData);
+    db.serialize(function () {
+      db.run('INSERT INTO table_share (share_type, key, data) VALUES(?, ?, ?)', req.body.shareType, shareKey, shareData, function(err){
+        if (err) {
+            console.error(err);
+            return next(err);
+        }
+      });
+    });
 
     res.json({
         shareKey: shareKey

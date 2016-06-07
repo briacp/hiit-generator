@@ -8,6 +8,13 @@ block content
       h1 HIIT Generator 
         small Sets and Workout Editor
 
+    div(ng-show='!hasLocalStorage')
+      div.panel.panel-warning()
+        div.panel-heading
+          h3.panel-title No Local Storage
+        div.panel-body
+          p Sorry, your browser does not support LocalStorage, we won't be able to save and load new Sets and Workouts...
+
     mixin modalDialog(dialogId, title, text, action, actionText)
       div.modal.fade(id=dialogId, tabindex='-1', role='dialog')
         div.modal-dialog
@@ -56,7 +63,7 @@ block content
 
     div.btn-toolbar.pull-right
 
-      div.btn-group(role='group')
+      div.btn-group(role='group', ng-show="hasLocalStorage")
         button.btn.btn-default(type='button', ng-click='loadHiit()')
           | Load
         button.btn.btn-primary(type='button', ng-click='saveHiit()')
@@ -103,8 +110,8 @@ block content
              span.badge.workout-duration {{workoutDuration(workout)}}
 
            span.pull-right
-             //button.workout-share.btn.btn-default(type='button', aria-label='Share Workout', title='Share Workout', ng-click='shareWorkout($index); $event.stopPropagation();')
-             //  span.glyphicon.glyphicon-share(aria-hidden='true')
+             button.workout-share.btn.btn-default(type='button', aria-label='Share Workout', title='Share Workout', ng-click='shareWorkout($index); $event.stopPropagation();')
+               span.glyphicon.glyphicon-share(aria-hidden='true')
              button.workout-delete.btn.btn-default(type='button', aria-label='Delete Workout', title='Delete Workout', data-toggle='modal', data-target='#deleteWorkoutModal')
                span.glyphicon.glyphicon-remove(aria-hidden='true')
 
@@ -134,8 +141,8 @@ block content
              span.badge.set-duration {{setDuration(set)}}
 
            span.pull-right
-             //button.set-delete.btn.btn-default(type='button', aria-label='Share Set', title='Share Set', ng-click='shareSet($index); $event.stopPropagation();')
-             //  span.glyphicon.glyphicon-share(aria-hidden='true')
+             button.set-delete.btn.btn-default(type='button', aria-label='Share Set', title='Share Set', ng-click='shareSet($index); $event.stopPropagation();')
+               span.glyphicon.glyphicon-share(aria-hidden='true')
              button.set-delete.btn.btn-default(type='button', aria-label='Delete Set', title='Delete Set', data-toggle='modal', data-target='#deleteSetModal')
                span.glyphicon.glyphicon-remove(aria-hidden='true')
 

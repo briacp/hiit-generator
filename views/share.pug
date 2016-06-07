@@ -1,0 +1,59 @@
+extends layout
+
+block content
+  script
+    | var _share = !{share}
+
+  div.container(ng-app='hiitTimerApp', ng-controller='hiitShareCtrl')
+
+    div.page-header
+      h1 HIIT Generator 
+        small Sets and Workout Editor
+
+    div(ng-show='share.shareType == "error"')
+      div.panel.panel-warning()
+        div.panel-heading
+          h3.panel-title No Workout found
+        div.panel-body
+          p Sorry, we could not found a matching Workout...
+
+    div(ng-show='share.shareType != "error"')
+      h2  Share
+
+      p Do you want to add the following {{share.shareType}} to your existing {{share.shareType}}s?
+      div.panel.panel-primary(ng-show='share.shareType == "workout"')
+        div.panel-heading
+          h3.panel-title {{share.shareData.name}} 
+            span.badge.workout-duration {{workoutDuration(share.shareData)}}
+        div.panel-body
+          div.sets(ng-repeat='set in share.shareData.sets')
+            h4 {{ set.name }} 
+              span.badge x{{ set.repetitions }}
+            div.action.form-inline(ng-repeat='action in set.actions')
+              span.colorSquare(style='background-color:{{action.color}}')
+              input.form-control(readonly, ng-model='action.name')
+              input.form-control(readonly, format-minutes-seconds, ng-model='action.time')
+
+      div.panel.panel-default(ng-show='share.shareType == "set"')
+        div.panel-heading
+          h3.panel-title {{share.shareData.name}} 
+            span.badge x{{ share.shareData.repetitions }}
+        div.panel-body
+            div.action.form-inline(ng-repeat='action in share.shareData.actions')
+              span.colorSquare(style='background-color:{{action.color}}')
+              input.form-control(readonly, ng-model='action.name')
+              input.form-control(readonly, format-minutes-seconds, ng-model='action.time')
+
+      div.btn-group(role='group')
+        button.btn.btn-primary(type='button', ng-click='addToStorage()')
+          | Add {{share.shareType}}
+
+    footer.footer
+      div.container
+         div.pull-right.footer-icons
+           a(href='https://github.com/briacp/hiit-generator', title='Code available on GitHub')
+             img(src='/img/GitHub-Mark-32px.png')
+           a(href='https://twitter.com/intent/tweet?text=Generate sets and workouts for the A HIIT Interval Timer Android application. %23HiitTimer&url=http://hiit.briac.net/', target='twitter', title='Share on Twitter')
+             img(src='/img/twitter.png')
+           a(href='mailto:hiit@briac.net')
+             img(src='/img/b_32.png')

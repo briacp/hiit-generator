@@ -39,3 +39,4 @@ tmp-import
 
 Session.vim
 hiit.db
+*.db-journal
