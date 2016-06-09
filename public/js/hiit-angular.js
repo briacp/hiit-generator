@@ -219,6 +219,42 @@
         };
 
 
+        // XXX Find a way to call this function inside the runCtrl when the
+        // modal dialog is opened.
+        var _initRun = function(type, run) {
+          $scope.runType = type;
+          $scope.run = run;
+
+          var maxSeconds = type == 'set' ? durationFactory.setDuration(run, true) : durationFactory.workoutDuration(run, true);
+
+          $scope.countDown = maxSeconds;
+          $scope.timer = {
+              running: false,
+              maxSeconds: parseInt(maxSeconds, 10),
+              timeLeft: durationFactory.sec2minsec(maxSeconds),
+              currSeconds: 0,
+          };
+          $scope.timer.percent = $scope.timer.currSeconds / $scope.timer.maxSeconds * 100;
+
+          $scope.actionCountDown = '01:22';
+          $scope.currentRound = 1;
+          $scope.totalRounds  = 8;
+          $scope.setTimeLeft = '2:33';
+
+          $('#runModal').modal();
+        };
+
+        $scope.runSet = function (index) {
+          $log.debug('runSet', index);
+          _initRun('set', $scope.hiit.sets[index]);
+        };
+
+        $scope.runWorkout = function (index) {
+          $log.debug('runWorkout', index);
+          _initRun('workout', $scope.hiit.workouts[index]);
+        };
+
+
         if (localStorageService.isSupported) {
             $scope.loadHiit();
             //$scope.unbindHiit = localStorageService.bind($scope, 'hiit');
@@ -247,6 +283,19 @@
         $scope.hasLocalStorage = function () {
             return localStorageService.isSupported;
         };
+    })
+    // Run Controller
+    .controller('runCtrl', function ($scope, $window, $log, durationFactory) {
+          //$scope.initRun = function() {
+          //    $log.debug('initRun');
+          //};
+
+          $scope.pause = function() {
+              $log.debug('pause');
+          };
+          $scope.stepForward = function() {
+              $log.debug('nextStep');
+          };
     })
     // Share Controller
     .controller('hiitShareCtrl', function ($scope, $window, $log, localStorageService, durationFactory) {
@@ -337,6 +386,7 @@
         };
 
         return {
+            sec2minsec: sec2minsec,
             actionDuration: actionDuration,
             setDuration: setDuration,
             workoutDuration: workoutDuration

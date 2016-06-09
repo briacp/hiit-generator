@@ -49,6 +49,50 @@ block content
           div.modal-footer
             button.btn.btn-default(type='button', data-dismiss='modal') Close
 
+    div.modal.fade(id='runModal', tabindex='-1', role='dialog', ng-controller='runCtrl')
+      div.modal-dialog
+        div.modal-content
+          div.modal-header
+            button.close(type='button', data-dismiss='modal', aria-label='Close')
+              span(aria-hidden='true') &times;
+            h4.modal-title {{ run.name }}
+          div.modal-body
+             div.progress
+               div.progress-bar.progress-bar-striped(role='progressbar' aria-valuenow='{{timer.currSeconds}}' aria-value-min='0' aria-valuemax='{{timer.maxSeconds}}' style='width:{{timer.percent}}%')
+                 | {{timer.timeLeft}}
+
+             div.row.run-sets
+               div.text-muted.prev-set.col-md-4 Prepare!
+               div.curr-set.col-md-4 Core Routine 45sec.
+               div.text-muted.next-set.col-md-4 
+
+             div.row.run-actions
+               div.text-muted.prev-action.col-md-4 Plank
+               div.curr-action.col-md-4 Modified bird dog
+               div.text-muted.next-action.col-md-4 Side plank
+
+             div.runCounter
+               | {{timer.maxSeconds}}
+               div.runCountdown
+                 //| {{actionCountDown}}
+                 timer(countdown='countDown', interval='1000', finish-callback='callbackTimer.finished()')
+                   | {{minutes}}:{{seconds}}
+
+               div.runRound
+                | Round {{currentRound}}/{{totalRounds}}
+
+               div.runSetTimeLeft
+                | Set time left: {{setTimeLeft}}
+
+          div.modal-footer
+            div.row
+              div.col-md-8
+                button.btn.btn-default(type='button', ng-click='pause()') 
+                  span.glyphicon.glyphicon-pause(aria-hidden='true')
+              div.col-md-4
+                button.btn.btn-default(type='button', ng-click='stepForward()') 
+                  span.glyphicon.glyphicon-step-forward(aria-hidden='true')
+
     p Edit and generate sets and workouts for the 
       a(href='https://play.google.com/store/apps/details?id=com.pimpimmobile.atimer', target='_blank') A HIIT Interval Timer
       |  Android application.
@@ -63,21 +107,14 @@ block content
 
     div.btn-toolbar.pull-right
 
-      div.btn-group(role='group', ng-show="hasLocalStorage")
-        button.btn.btn-default(type='button', ng-click='loadHiit()')
-          | Load
-        button.btn.btn-primary(type='button', ng-click='saveHiit()')
-          | Save
-
       div.btn-group(role='group')
+        button.btn.btn-primary(type='button', ng-click='saveHiit()', ng-show="hasLocalStorage")
+          | Save
         button.btn.btn-default(type='button', ng-click='showUpload()')
-          | Import HIIT Sets
+          | Import
         button.btn.btn-default(type='button', ng-click='exportHiit()', target='_blank')
-          | Export HIIT Sets
-
+          | Export
         //button.btn.btn-default(type='button', ng-click='toggleDebug()') Debug
-
-
 
     div.row.menu-row(ng-show='uploading')
       label(for='ahiitFile') Upload .ahiit file:
@@ -110,6 +147,8 @@ block content
              span.badge.workout-duration {{workoutDuration(workout)}}
 
            span.pull-right
+             button.workout-run.btn.btn-success(type='button', aria-label='Run Workout', title='Run Workout', ng-click='runWorkout($index); $event.stopPropagation();')
+               span.glyphicon.glyphicon-play(aria-hidden='true')
              button.workout-share.btn.btn-default(type='button', aria-label='Share Workout', title='Share Workout', ng-click='shareWorkout($index); $event.stopPropagation();')
                span.glyphicon.glyphicon-share(aria-hidden='true')
              button.workout-delete.btn.btn-default(type='button', aria-label='Delete Workout', title='Delete Workout', data-toggle='modal', data-target='#deleteWorkoutModal')
@@ -141,6 +180,8 @@ block content
              span.badge.set-duration {{setDuration(set)}}
 
            span.pull-right
+             button.set-run.btn.btn-success(type='button', aria-label='Run Set', title='Run Set', ng-click='runSet($index); $event.stopPropagation();')
+               span.glyphicon.glyphicon-play(aria-hidden='true')
              button.set-delete.btn.btn-default(type='button', aria-label='Share Set', title='Share Set', ng-click='shareSet($index); $event.stopPropagation();')
                span.glyphicon.glyphicon-share(aria-hidden='true')
              button.set-delete.btn.btn-default(type='button', aria-label='Delete Set', title='Delete Set', data-toggle='modal', data-target='#deleteSetModal')
