@@ -24,3 +24,4 @@ body { margin-bottom: 40px; }
 .runRound { font-size: 30pt; }
 .runSetTimeLeft { font-size: 18pt; }
 .runCounter { padding-top: 60px; padding-bottom: 60px; }
+.progress-bar { text-align: left; padding-left: 10px; font-weight: 600; }

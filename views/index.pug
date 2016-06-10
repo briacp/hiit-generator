@@ -58,37 +58,36 @@ block content
             h4.modal-title {{ run.name }}
           div.modal-body
              div.progress
-               div.progress-bar.progress-bar-striped(role='progressbar' aria-valuenow='{{timer.currSeconds}}' aria-value-min='0' aria-valuemax='{{timer.maxSeconds}}' style='width:{{timer.percent}}%')
-                 | {{timer.timeLeft}}
+               div.progress-bar.progress-bar-striped(role='progressbar' aria-valuenow='{{run.currSeconds}}' aria-value-min='0' aria-valuemax='{{run.totalSeconds}}' style='width:{{run.percent}}%')
+                 | {{run.timeLeft}}
 
              div.row.run-sets
-               div.text-muted.prev-set.col-md-4 Prepare!
-               div.curr-set.col-md-4 Core Routine 45sec.
-               div.text-muted.next-set.col-md-4 
+               div.text-muted.prev-set.col-md-4 {{run.sets.prev}}
+               div.curr-set.col-md-4 {{run.sets.curr}}
+               div.text-muted.next-set.col-md-4 {{run.sets.next}}
 
              div.row.run-actions
-               div.text-muted.prev-action.col-md-4 Plank
-               div.curr-action.col-md-4 Modified bird dog
-               div.text-muted.next-action.col-md-4 Side plank
+               div.text-muted.prev-action.col-md-4 {{run.actions.prev}}
+               div.curr-action.col-md-4 {{run.actions.curr}}
+               div.text-muted.next-action.col-md-4 {{run.actions.next}}
 
              div.runCounter
-               | {{timer.maxSeconds}}
                div.runCountdown
-                 //| {{actionCountDown}}
-                 timer(countdown='countDown', interval='1000', finish-callback='callbackTimer.finished()')
-                   | {{minutes}}:{{seconds}}
+                 | {{run.countDown}}
 
                div.runRound
-                | Round {{currentRound}}/{{totalRounds}}
+                | Round {{run.currentRound}}/{{run.totalRounds}}
 
                div.runSetTimeLeft
-                | Set time left: {{setTimeLeft}}
+                | Set time left: {{run.setTimeLeft}}
 
           div.modal-footer
             div.row
               div.col-md-8
-                button.btn.btn-default(type='button', ng-click='pause()') 
-                  span.glyphicon.glyphicon-pause(aria-hidden='true')
+                button.btn.btn-default(type='button', ng-click='startRun()') 
+                  span.glyphicon.glyphicon-play(aria-hidden='true')
+                button.btn.btn-default(type='button', ng-click='stopRun()') 
+                  span.glyphicon.glyphicon-stop(aria-hidden='true')
               div.col-md-4
                 button.btn.btn-default(type='button', ng-click='stepForward()') 
                   span.glyphicon.glyphicon-step-forward(aria-hidden='true')
