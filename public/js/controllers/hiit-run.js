@@ -10,8 +10,6 @@ angular.module('hiitTimerApp').controller('runCtrl', function ($scope, $rootScop
         _initRun(args.runType, args.runData);
     });
 
-    // XXX Find a way to call this function inside the runCtrl when the
-    // modal dialog is opened.
     var _initRun = function (type, runData) {
         $log.debug('_initRun', type, runData);
         var run = {};
