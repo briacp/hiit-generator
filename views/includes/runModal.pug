@@ -4,31 +4,31 @@ div.modal.fade(id='runModal', tabindex='-1', role='dialog', ng-controller='runCt
       div.modal-header
         button.close(type='button', data-dismiss='modal', aria-label='Close')
           span(aria-hidden='true') &times;
-        h4.modal-title {{ run.name }}
+        h4.modal-title {{ run.title }}
       div.modal-body
          div.progress
-           div.progress-bar.progress-bar-striped(role='progressbar' aria-valuenow='{{run.currSeconds}}' aria-value-min='0' aria-valuemax='{{run.totalSeconds}}' style='width:{{run.percent}}%')
-             | {{run.timeLeft}}
+           div.progress-bar.progress-bar-striped(role='progressbar' aria-valuenow='{{run.workout.currSeconds}}' aria-value-min='0' aria-valuemax='{{run.workout.totalSeconds}}' style='width:{{run.workout.percent}}%')
+             | {{sec2minsec(run.workout.timeLeft)}}
 
          div.row.run-sets
-           div.text-muted.prev-set.col-md-4 {{run.sets.prev}}
-           div.curr-set.col-md-4 {{run.sets.curr}}
-           div.text-muted.next-set.col-md-4 {{run.sets.next}}
+           div.text-muted.prev-set.col-md-4 {{run.set.previous.name}}
+           div.curr-set.col-md-4 {{run.set.name}}
+           div.text-muted.next-set.col-md-4 {{run.set.next.name}}
 
          div.row.run-actions
-           div.text-muted.prev-action.col-md-4 {{run.actions.prev}}
-           div.curr-action.col-md-4 {{run.actions.curr}}
-           div.text-muted.next-action.col-md-4 {{run.actions.next}}
+           div.text-muted.prev-action.col-md-4 {{run.action.previous.name}}
+           div.curr-action.col-md-4 {{run.action.name}}
+           div.text-muted.next-action.col-md-4 {{run.action.next.name}}
 
          div.runCounter
            div.runCountdown
-             | {{run.countDown}}
+                   | {{sec2minsec(run.action.timeLeft)}}
 
            div.runRound
-            | Round {{run.currentRound}}/{{run.totalRounds}}
+            | Round {{run.set.round}}/{{run.set.repetitions}}
 
-           div.runSetTimeLeft
-            | Set time left: {{run.setTimeLeft}}
+           div.runSetTimeLeft(ng-show='run.type == "workout"')
+            | Set time left: {{sec2minsec(run.set.timeLeft)}}
 
       div.modal-footer
         div.row
