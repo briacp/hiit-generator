@@ -7,7 +7,7 @@ angular.module('hiitTimerApp').factory('durationFactory', function () {
     var sec2minsec = function (secs) {
 
         if (!secs) {
-            return '';
+            return '00:00';
         }
 
         var minutes = Math.floor(secs / 60);
