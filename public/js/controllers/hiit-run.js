@@ -4,8 +4,6 @@
 angular.module('hiitTimerApp').controller('runCtrl', function ($scope, $rootScope, $window, $log, $interval, durationFactory) {
     'use strict';
     var runInterval;
-    var setIndex;
-    var actionIndex;
 
     $scope.prepareRun = 5;
 
@@ -19,6 +17,11 @@ angular.module('hiitTimerApp').controller('runCtrl', function ($scope, $rootScop
 
     var _initRun = function (type, runData) {
         $log.debug('_initRun', type, runData);
+
+        $scope.runButtonState = 'glyphicon-play';
+        $scope.isRunning = false;
+        $scope.isFinished = false;
+
         var data = {};
         angular.copy(runData, data);
 
@@ -31,8 +34,6 @@ angular.module('hiitTimerApp').controller('runCtrl', function ($scope, $rootScop
             actions: []
         };
 
-        var totalSeconds = durationFactory.workoutDuration(run.data, true);
-
         if ($scope.prepareRun) {
             run.data.sets.unshift({
                 name: 'Prepare!',
@@ -44,6 +45,8 @@ angular.module('hiitTimerApp').controller('runCtrl', function ($scope, $rootScop
                 }]
             });
         }
+
+        var totalSeconds = durationFactory.workoutDuration(run.data, true);
 
         // Workout ------------------------------------------------------------
         run.workout.totalSeconds = totalSeconds;
@@ -72,7 +75,7 @@ angular.module('hiitTimerApp').controller('runCtrl', function ($scope, $rootScop
 
         run.set = currentSet;
         run.set.index = setIndex;
-        run.set.previous = setIndex == 0 ? null : (run.data.sets[setIndex - 1] || null);
+        run.set.previous = setIndex === 0 ? null : (run.data.sets[setIndex - 1] || null);
         run.set.next = run.data.sets[setIndex + 1] || null;
         run.set.round = 1;
         run.set.timeLeft = durationFactory.setDuration(currentSet, true);
@@ -89,7 +92,7 @@ angular.module('hiitTimerApp').controller('runCtrl', function ($scope, $rootScop
             return null;
         }
         run.action.index = actionIndex;
-        run.action.previous = actionIndex == 0 ? null : (currentSet.actions[actionIndex - 1] || null);
+        run.action.previous = actionIndex === 0 ? null : (currentSet.actions[actionIndex - 1] || null);
         run.action.next = currentSet.actions[actionIndex + 1] || null;
         run.action.timeLeft = run.action.time;
 
@@ -118,19 +121,15 @@ angular.module('hiitTimerApp').controller('runCtrl', function ($scope, $rootScop
     };
 
     var _intervalRun = function () {
-        $scope.run.timeLeft -= 1;
-
         var run = $scope.run;
+
+        // FIXME Off by one error in set timer somewhere ?
 
         // Workout Update -----------------------------------------------------
         run.workout.currSeconds += 1;
         run.workout.timeLeft -= 1;
         run.workout.percent = run.workout.currSeconds / run.workout.totalSeconds * 100;
-
-        // Set Update ---------------------------------------------------------
         run.set.timeLeft -= 1;
-
-        // Action Update ------------------------------------------------------
         run.action.timeLeft -= 1;
 
         // Check for finish condition -----------------------------------------
@@ -141,7 +140,8 @@ angular.module('hiitTimerApp').controller('runCtrl', function ($scope, $rootScop
             _nextSet();
         }
         if (run.workout.timeLeft < 0) {
-            $log.debug('DONE!');
+            $scope.isFinished = true;
+            $scope.runButtonState = 'glyphicon-flag';
             $interval.cancel(runInterval);
         }
         if (run.action.timeLeft <= 5) {
@@ -149,7 +149,21 @@ angular.module('hiitTimerApp').controller('runCtrl', function ($scope, $rootScop
             $log.debug('TODO - Play sound.');
         }
 
+
         //$log.debug(run, run.workout.timeLeft);
+    };
+
+    $scope.toggleRun = function () {
+        if ($scope.isFinished) {
+            $('#runModal').modal('hide');
+        }
+        if ($scope.isRunning) {
+            $scope.runButtonState = 'glyphicon-play';
+            $scope.stopRun();
+        } else {
+            $scope.runButtonState = 'glyphicon-pause';
+            $scope.startRun();
+        }
     };
 
     $scope.startRun = function () {
@@ -157,6 +171,7 @@ angular.module('hiitTimerApp').controller('runCtrl', function ($scope, $rootScop
             return;
         }
         runInterval = $interval(_intervalRun, 1000);
+        $scope.isRunning = true;
     };
 
     $scope.stopRun = function () {
@@ -164,6 +179,7 @@ angular.module('hiitTimerApp').controller('runCtrl', function ($scope, $rootScop
             $interval.cancel(runInterval);
             runInterval = null;
         }
+        $scope.isRunning = false;
     };
 
     $scope.sec2minsec = function (s) {

@@ -17,16 +17,20 @@ div.modal.fade(id='runModal', tabindex='-1', role='dialog', ng-controller='runCt
 
          div.row.run-actions
            div.text-muted.prev-action.col-md-4 {{run.action.previous.name}}
-           div.curr-action.col-md-4 {{run.action.name}}
+           div.curr-action.col-md-4 
+             span.colorSquare(style='background-color:{{run.action.color}}')  
+             | {{run.action.name}}
            div.text-muted.next-action.col-md-4 {{run.action.next.name}}
 
          div.runCounter
-           div.runCountdown(ng-show='run.workout.timeLeft > 0', style='color:{{run.action.color == "#ffffff" ? black : run.action.color}}')
+           div.runCountdown(ng-show='run.workout.timeLeft > 0')
              | {{sec2minsec(run.action.timeLeft)}}
            div.runCountdownOK(ng-show='run.workout.timeLeft <= 0')
              | OK!
+           div.debug
+             | W:{{run.workout.timeLeft}} / S:{{run.set.timeLeft}} / A:{{run.action.timeLeft}}
 
-           div.runRound
+           div.runRound(ng-show='run.set.repetitions > 1')
              | Round {{run.set.round}}/{{run.set.repetitions}}
 
            div.runSetTimeLeft(ng-show='run.type == "workout"')
@@ -34,11 +38,6 @@ div.modal.fade(id='runModal', tabindex='-1', role='dialog', ng-controller='runCt
 
       div.modal-footer
         div.row
-          div.col-md-8
-            button.btn.btn-default(type='button', ng-click='startRun()') 
-              span.glyphicon.glyphicon-play(aria-hidden='true')
-            button.btn.btn-default(type='button', ng-click='stopRun()') 
-              span.glyphicon.glyphicon-stop(aria-hidden='true')
-          div.col-md-4
-            button.btn.btn-default(type='button', ng-click='stepForward()') 
-              span.glyphicon.glyphicon-step-forward(aria-hidden='true')
+          div.col-md-12
+            button.btn.btn-default(type='button', ng-click='toggleRun()') 
+              span.glyphicon(ng-class='runButtonState', aria-hidden='true')
