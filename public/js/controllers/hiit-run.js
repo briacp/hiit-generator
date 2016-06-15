@@ -1,11 +1,15 @@
 /*global angular:true */
 /*jshint bitwise:true, browser:true, camelcase:true, curly:true, devel:false, eqeqeq:false, forin:true, immed:true, indent:4, newcap:true, noarg:true, noempty:true, nonew:true, quotmark:true, regexp:false, strict:true, trailing:true, undef:true, unused:true */
 // Run Controller
-angular.module('hiitTimerApp').controller('runCtrl', function ($scope, $rootScope, $window, $log, $interval, durationFactory) {
+angular.module('hiitTimerApp').controller('runCtrl', function ($scope, $rootScope, $window, $log, $interval, durationFactory, ngAudio) {
     'use strict';
     var runInterval;
 
     $scope.prepareRun = 5;
+
+    $scope.sounds = {
+      tick: ngAudio.load('../../tick.mp3')
+    };
 
     $rootScope.$on('runEvent', function (ev, args) {
         _initRun(args.runType, args.runData);
@@ -123,8 +127,6 @@ angular.module('hiitTimerApp').controller('runCtrl', function ($scope, $rootScop
     var _intervalRun = function () {
         var run = $scope.run;
 
-        // FIXME Off by one error in set timer somewhere ?
-
         // Workout Update -----------------------------------------------------
         run.workout.currSeconds += 1;
         run.workout.timeLeft -= 1;
@@ -133,22 +135,20 @@ angular.module('hiitTimerApp').controller('runCtrl', function ($scope, $rootScop
         run.action.timeLeft -= 1;
 
         // Check for finish condition -----------------------------------------
-        if (run.action.timeLeft < 0) {
-            _nextAction();
-        }
-        if (run.set.timeLeft < 0) {
-            _nextSet();
-        }
-        if (run.workout.timeLeft < 0) {
+        if (run.workout.timeLeft == 0) {
             $scope.isFinished = true;
             $scope.runButtonState = 'glyphicon-flag';
             $interval.cancel(runInterval);
         }
-        if (run.action.timeLeft <= 5) {
-            // Play sound
-            $log.debug('TODO - Play sound.');
+        else if (run.set.timeLeft == 0) {
+            _nextSet();
         }
-
+        else if (run.action.timeLeft == 0) {
+            _nextAction();
+        }
+        if (run.action.timeLeft <= 5) {
+            $scope.sounds.tick.play();
+        }
 
         //$log.debug(run, run.workout.timeLeft);
     };
