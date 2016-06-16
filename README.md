@@ -7,4 +7,5 @@ Unofficial Node/Angular application to easily create Workouts and Sets for the [
 ### Todo
 
 * Workout should allow the reuse and copy of existing sets
-
+* Better layout when using on mobile devices
+* Previous/Next Action/Set buttons

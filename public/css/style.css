@@ -16,3 +16,12 @@ body { margin-bottom: 40px; }
 
 .colorSquare { display:inline-block; border-radius:7.5px; width: 15px; height: 15px; margin-right: 4px; border: Solid 1px rgba(33,33,33,0.33); }
 
+.runCounter, .run-sets, .run-actions { text-align: center; }
+.run-actions div { font-size: 18pt; }
+.curr-set, .curr-action { font-weight: 700; }
+#runModal .modal-footer { text-align:center }
+.runCountdown, .runCountdownOK { font-size: 80pt; }
+.runRound { font-size: 30pt; }
+.runSetTimeLeft { font-size: 18pt; }
+.runCounter { padding-top: 60px; padding-bottom: 60px; }
+.progress-bar { text-align: left; padding-left: 10px; font-weight: 600; }

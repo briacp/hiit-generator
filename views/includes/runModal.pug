@@ -1,0 +1,43 @@
+div.modal.fade(id='runModal', tabindex='-1', role='dialog', ng-controller='runCtrl')
+  div.modal-dialog
+    div.modal-content
+      div.modal-header
+        button.close(type='button', data-dismiss='modal', aria-label='Close')
+          span(aria-hidden='true') &times;
+        h4.modal-title {{ run.title }}
+      div.modal-body
+         div.progress
+           div.progress-bar.progress-bar-striped(role='progressbar' aria-valuenow='{{run.workout.currSeconds}}' aria-value-min='0' aria-valuemax='{{run.workout.totalSeconds}}' style='width:{{run.workout.percent}}%')
+             | {{sec2minsec(run.workout.timeLeft)}}
+
+         div.row.run-sets
+           div.text-muted.prev-set.col-md-4 {{run.set.previous.name}}
+           div.curr-set.col-md-4 {{run.set.name}}
+           div.text-muted.next-set.col-md-4 {{run.set.next.name}}
+
+         div.row.run-actions
+           div.text-muted.prev-action.col-md-4 {{run.action.previous.name}}
+           div.curr-action.col-md-4 
+             span.colorSquare(style='background-color:{{run.action.color}}')  
+             | {{run.action.name}}
+           div.text-muted.next-action.col-md-4 {{run.action.next.name}}
+
+         div.runCounter
+           div.runCountdown(ng-show='run.workout.timeLeft > 0')
+             | {{sec2minsec(run.action.timeLeft)}}
+           div.runCountdownOK(ng-show='run.workout.timeLeft <= 0')
+             | OK!
+           div(ng-show='debugMode')
+             | W:{{run.workout.timeLeft}} / S:{{run.set.timeLeft}} / A:{{run.action.timeLeft}}
+
+           div.runRound(ng-show='run.set.repetitions > 1')
+             | Round {{run.set.round}}/{{run.set.repetitions}}
+
+           div.runSetTimeLeft(ng-show='run.type == "workout"')
+             | Set time left: {{sec2minsec(run.set.timeLeft)}}
+
+      div.modal-footer
+        div.row
+          div.col-md-12
+            button.btn.btn-default(type='button', ng-click='toggleRun()') 
+              span.glyphicon(ng-class='runButtonState', aria-hidden='true')
