@@ -5,8 +5,9 @@ block content
   div.container(ng-app='hiitTimerApp', ng-controller='hiitEditorCtrl')
 
     div.page-header
-      h1 HIIT Generator 
-        small Sets and Workout Editor
+        h1
+          img(src='img/icon_40.png')
+          |  HIIT Generator 
 
     div(ng-show='!hasLocalStorage')
       div.panel.panel-warning()
