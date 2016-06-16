@@ -27,7 +27,7 @@ div.modal.fade(id='runModal', tabindex='-1', role='dialog', ng-controller='runCt
              | {{sec2minsec(run.action.timeLeft)}}
            div.runCountdownOK(ng-show='run.workout.timeLeft <= 0')
              | OK!
-           div.debug
+           div(ng-show='debugMode')
              | W:{{run.workout.timeLeft}} / S:{{run.set.timeLeft}} / A:{{run.action.timeLeft}}
 
            div.runRound(ng-show='run.set.repetitions > 1')
