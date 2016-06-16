@@ -98,7 +98,12 @@ block content
 
       div.list-group.workout-list
         div.workout.list-group-item.clearfix(ng-repeat='workout in hiit.workouts', ng-click='showWorkout(workout, $index)')
-           h4.workout.list-group-item-heading {{workout.name}}
+           h4.workout.list-group-item-heading
+             span(ng-show='workout.url')
+               button.workout-open-url.btn.btn-default(type='button', aria-label='Workout Info', title='Workout Info', ng-click='openUrl(workout.url)', target='_blank')
+                 span.glyphicon.glyphicon-book(aria-hidden='true')
+             |  {{workout.name}}
+
            p.list-group-item-text
              span.workout-actions {{workout.sets.length}}
              |  sets 
@@ -118,6 +123,10 @@ block content
          div.form-group.col-md-12
            label(for='workoutName') Name
            input.form-control(id='workoutName', name='workoutName', ng-model='currentWorkout.name', type='text', placeholder='Workout Name')
+       div.row
+         div.form-group.col-md-12
+           label(for='workoutURL') URL
+           input.form-control(id='workoutURL', name='workoutURL', ng-model='currentWorkout.url', type='text', placeholder='URL of a page describing the workout.')
 
     div(ng-show='!modeWorkout || currentWorkout')
       h2 Sets
@@ -129,7 +138,12 @@ block content
 
       div.list-group.set-list(html-sortable, ng-model='displayedSets')
         div.set.list-group-item.clearfix(ng-repeat='set in displayedSets', ng-click='showSet(set, $index)')
-           h4.set-name.list-group-item-heading {{set.name}}
+           h4.set-name.list-group-item-heading
+             span(ng-show='set.url')
+               button.set-open-url.btn.btn-default(type='button', aria-label='Set Info', title='Set Info', ng-click='openUrl(set.url)', target='_blank')
+                 span.glyphicon.glyphicon-book(aria-hidden='true')
+             |  {{set.name}}
+
            p.list-group-item-text
              span.set-actions {{set.actions.length}}
              |  actions, 
@@ -154,6 +168,10 @@ block content
          div.form-group.col-md-2
            label(for='setRepetitions') Rounds
            input.form-control(id='setRepetitions', name='setRepetitions', ng-model='currentSet.repetitions', type='text', placeholder='Number of Repetitions')
+       div.row
+         div.form-group.col-md-12
+           label(for='setURL') URL
+           input.form-control(id='setURL', name='setURL', ng-model='currentSet.url', type='text', placeholder='URL of a page describing the set.')
 
        div#actions(html-sortable, ng-model='currentSet.actions')
          div.row.action-row(ng-repeat='action in currentSet.actions')

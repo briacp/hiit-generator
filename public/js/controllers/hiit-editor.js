@@ -99,6 +99,10 @@ angular.module('hiitTimerApp')
         $scope.uploading = !$scope.uploading;
     };
 
+    $scope.openUrl = function(url) {
+        $window.open(url);
+    };
+
     $scope.importHiit = function () {
         $log.debug('import .ahiit');
         $log.debug($scope.uploader);
